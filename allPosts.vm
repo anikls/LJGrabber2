@@ -15,9 +15,9 @@
 				#set($c = $postList.size())
 				#foreach ($i in $postList)
 				#set($c = $c - 1)	
-				#set($post = $postList.get($c))	
-					$("#accordion").append("<li class=\"accordion_item\" id=\"post${post.itemid}\"></li>");
-					$("#post${post.itemid}").load("/post/${post.itemid}.html #post_event");	
+				#set($LJPost = $postList.get($c))
+					$("#accordion").append("<li class=\"accordion_item\" id=\"LJPost${LJPost.itemid}\"></li>");
+					$("#LJPost${LJPost.itemid}").load("/LJPost/${LJPost.itemid}.html #post_event");
 				#end					
 				});
 			</script>	

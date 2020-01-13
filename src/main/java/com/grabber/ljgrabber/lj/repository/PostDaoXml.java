@@ -1,8 +1,8 @@
-package com.grabber.ljgrabber.repository;
+package com.grabber.ljgrabber.lj.repository;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
-import com.grabber.ljgrabber.entity.ListPost;
-import com.grabber.ljgrabber.entity.Post;
+import com.grabber.ljgrabber.lj.entity.LJPost;
+import com.grabber.ljgrabber.lj.entity.ListPost;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
-public class PostDaoXml implements PostRepository {
+public class PostDaoXml {//implements PostRepository {
 	private static final String FILE_NAME = "posts.xml";
 	private String fileName;
-	private List<Post> cache = new ArrayList<>();
+	private List<LJPost> cache = new ArrayList<>();
 	private JAXBContext jaxbContext;
 	private Unmarshaller unmarshaller;
 	private Marshaller marshaller;
@@ -44,8 +44,8 @@ public class PostDaoXml implements PostRepository {
 				ListPost listPost;
 				Reader reader = new FileReader(fileName);			
 				listPost = (ListPost) unmarshaller.unmarshal(reader);			
-				for (Post post:listPost.getPosts()){
-					cache.add(post);
+				for (LJPost LJPost :listPost.getPosts()){
+					cache.add(LJPost);
 				}
 			} else {
 				file.createNewFile();
@@ -57,7 +57,7 @@ public class PostDaoXml implements PostRepository {
 		
 	}
 
-	private Optional<Post> getPostById(Long id) {
+	private Optional<LJPost> getPostById(Long id) {
 		return cache.stream()
 				.filter(post -> post.getItemid() == id)
 				.findAny();
@@ -68,16 +68,16 @@ public class PostDaoXml implements PostRepository {
 				.anyMatch(post -> post.getItemid() == id);
 	}
 
-//	public Post save(Post item) {
+//	public LJPost save(LJPost item) {
 //		if (cache.containsKey(item.getItemid()))
 //			throw new RuntimeException("Запись с id="+item.getItemid()+" уже существует в файле");
 //		flash();
 //		return cache.get(item.getItemid());
 //	}
 	
-	public void saveNew(List<Post> items) {
+	public void saveNew(List<LJPost> items) {
 
-		for (Post post :  items) {
+		for (LJPost post :  items) {
 			if (existIn(post.getItemid())) {
 				log.warn("Запись с id="+post.getItemid()+" уже существует в базе");
 			} else {
@@ -88,35 +88,35 @@ public class PostDaoXml implements PostRepository {
 		}
 	}
 
-	public Optional<Post> lastPost() {
+	public Optional<LJPost> lastPost() {
 		return cache.size() == 0
 				? Optional.empty()
 				: Optional.ofNullable(cache)
 					.map(cache -> cache.get(cache.size()-1));
 	}
 
-	public Optional<Post> firstPost() {
+	public Optional<LJPost> firstPost() {
 		return cache.size() == 0
 				? Optional.empty()
 				: Optional.ofNullable(cache)
 				.map(cache -> cache.get(0));
 	}
 
-	public Optional<Post> read(long id) {
+	public Optional<LJPost> read(long id) {
 		return getPostById(id);
 	}
 	
-	public List<Post> readAll() {
+	public List<LJPost> readAll() {
 		return cache;
 	}
 
-	public List<Post> readAllByYear(String year) {
+	public List<LJPost> readAllByYear(String year) {
 		return cache.stream()
 				.filter(post -> post.getEventtime().startsWith(year))
 				.collect(Collectors.toList());
 	}
 
-	public void update(Post item) {
+	public void update(LJPost item) {
 		int indx = cache.indexOf(item);
 		if (indx > 0) {
 			cache.add(indx, item);

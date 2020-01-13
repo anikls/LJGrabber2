@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.entity;
+package com.grabber.ljgrabber.lj.entity;
 
 import lombok.*;
 import org.jsoup.Jsoup;
@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlElement;
 @AllArgsConstructor
 @Builder
 @ToString
-public class Post {
+public class LJPost {
 	
 	@XmlElement(name="itemid")
 	private long itemid;
@@ -40,7 +40,7 @@ public class Post {
 	@XmlElement(name="reply_count")
 	private String reply_count;
 	@XmlElement(name="autor")
-	private Author autor;
+	private Long autorId;
 
 	public String getEventText() {
 		return Jsoup.parse(event).text();

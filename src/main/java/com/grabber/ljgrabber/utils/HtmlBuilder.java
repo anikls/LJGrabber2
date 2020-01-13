@@ -1,7 +1,7 @@
 package com.grabber.ljgrabber.utils;
 
-import com.grabber.ljgrabber.entity.LinkPost;
-import com.grabber.ljgrabber.entity.Post;
+import com.grabber.ljgrabber.lj.entity.LJPost;
+import com.grabber.ljgrabber.lj.entity.LinkPost;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
@@ -24,7 +24,7 @@ public class HtmlBuilder {
 		return ve;
 	}
 	
-	public static void generateHtml(String outFileName, Post post){
+	public static void generateHtml(String outFileName, LJPost post){
 		
 		String fileName = "post.vm";		
 	    Template t = getVE().getTemplate( fileName,"UTF-8");
@@ -45,7 +45,7 @@ public class HtmlBuilder {
                                        String outFileName,
                                        LinkPost predYear,
                                        LinkPost nextYear,
-                                       List<Post> listPost){
+                                       List<LJPost> listPost){
 						
 	    Template t = getVE().getTemplate( template,"UTF-8");
 	    VelocityContext context = new VelocityContext();

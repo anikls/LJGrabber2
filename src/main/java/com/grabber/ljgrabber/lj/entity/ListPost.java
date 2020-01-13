@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.entity;
+package com.grabber.ljgrabber.lj.entity;
 
 import lombok.Data;
 
@@ -15,6 +15,6 @@ import java.util.List;
 public class ListPost {
 
 	@XmlElement(name="post")
-	private List<Post> posts = new ArrayList();
+	private List<LJPost> posts = new ArrayList();
 	
 }

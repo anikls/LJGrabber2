@@ -1,14 +1,16 @@
-package com.grabber.ljgrabber.service.lj;
+package com.grabber.ljgrabber.lj.service;
 
-import com.grabber.ljgrabber.entity.Author;
-import com.grabber.ljgrabber.entity.Post;
+import com.grabber.ljgrabber.lj.entity.Author;
+import com.grabber.ljgrabber.lj.entity.LJPost;
 import com.grabber.ljgrabber.utils.Conversion;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,6 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.annotation.PostConstruct;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -24,23 +27,31 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@Component
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class LJClientImpl implements LJClient {
 	
 	private static final String URL = "http://www.livejournal.com/interface/xmlrpc";
-		
-	private static final RestTemplate restTemplate = new RestTemplate();
+    private static final RestTemplate restTemplate = new RestTemplate();
+
 	private VelocityEngine ve;
-	
-	public LJClientImpl() {
+
+	@PostConstruct
+	void init() {
 		ve = new VelocityEngine();
-	    ve.init();
+		ve.init();
 	}
 
-	private List<Post> loadByReq(String reqXml, Author autor){
-		List<Post> listPost = new ArrayList();
+	private List<LJPost> loadByReq(String reqXml, Author autor){
+
+		List<LJPost> listPost = new ArrayList();
 				
 		try  {
 		
@@ -84,7 +95,7 @@ public class LJClientImpl implements LJClient {
 	        	}	        	
 	        	map.put("autor", String.valueOf(autor.getId()));
 	    		if (!map.isEmpty() && map.containsKey("itemid")){							
-	    			Post p = generatePost(map);
+	    			LJPost p = generatePost(map);
 	    			if (p!=null) listPost.add(p);
 	    		}
 	        }
@@ -95,43 +106,42 @@ public class LJClientImpl implements LJClient {
 	    return listPost;
 	}
 
-	private Post generatePost(Map<String,String> data) {
-		Post.PostBuilder postBuilder = Post.builder();
-		Optional.ofNullable(data.get("itemid"))
-				.ifPresent(item -> postBuilder.itemid(Long.parseLong(item)));
-		Optional.ofNullable(data.get("anum"))
-				.ifPresent(item -> postBuilder.anum(item));
-		Optional.ofNullable(data.get("eventtime"))
-				.ifPresent(item -> postBuilder.eventtime(item));
-		Optional.ofNullable(data.get("subject"))
-				.ifPresent(item -> postBuilder.subject(item));
-		Optional.ofNullable(data.get("url"))
-				.ifPresent(item -> postBuilder.url(item));
-		Optional.ofNullable(data.get("can_comment"))
-				.ifPresent(item -> postBuilder.can_comment(item));
-		Optional.ofNullable(data.get("logtime"))
-				.ifPresent(item -> postBuilder.logtime(item));
-		Optional.ofNullable(data.get("event_timestamp"))
-				.ifPresent(item -> postBuilder.event_timestamp(item));
-		Optional.ofNullable(data.get("lastsync"))
-				.ifPresent(item -> postBuilder.lastsync(item));
-		Optional.ofNullable(data.get("ditemid"))
-				.ifPresent(item -> postBuilder.ditemid(item));
-		Optional.ofNullable(data.get("event"))
-				.ifPresent(item -> postBuilder.event(item));
-		Optional.ofNullable(data.get("reply_count"))
-				.ifPresent(item -> postBuilder.reply_count(item));
-		Optional.ofNullable(data.get("autor"))
-				.ifPresent(item -> {
-					Author author = new Author();
-					author.setId(Long.parseLong(data.get("autor")));
-					postBuilder.autor(author);
-				});
-		return postBuilder.build();
+	private LJPost generatePost(Map<String,String> data) {
+//		LJPost.PostBuilder postBuilder = LJPost.builder();
+//		Optional.ofNullable(data.get("itemid"))
+//				.ifPresent(item -> postBuilder.itemid(Long.parseLong(item)));
+//		Optional.ofNullable(data.get("anum"))
+//				.ifPresent(item -> postBuilder.anum(item));
+//		Optional.ofNullable(data.get("eventtime"))
+//				.ifPresent(item -> postBuilder.eventtime(item));
+//		Optional.ofNullable(data.get("subject"))
+//				.ifPresent(item -> postBuilder.subject(item));
+//		Optional.ofNullable(data.get("url"))
+//				.ifPresent(item -> postBuilder.url(item));
+//		Optional.ofNullable(data.get("can_comment"))
+//				.ifPresent(item -> postBuilder.can_comment(item));
+//		Optional.ofNullable(data.get("logtime"))
+//				.ifPresent(item -> postBuilder.logtime(item));
+//		Optional.ofNullable(data.get("event_timestamp"))
+//				.ifPresent(item -> postBuilder.event_timestamp(item));
+//		Optional.ofNullable(data.get("lastsync"))
+//				.ifPresent(item -> postBuilder.lastsync(item));
+//		Optional.ofNullable(data.get("ditemid"))
+//				.ifPresent(item -> postBuilder.ditemid(item));
+//		Optional.ofNullable(data.get("event"))
+//				.ifPresent(item -> postBuilder.event(item));
+//		Optional.ofNullable(data.get("reply_count"))
+//				.ifPresent(item -> postBuilder.reply_count(item));
+//		Optional.ofNullable(data.get("autor"))
+//				.ifPresent(item -> {
+//					postBuilder.autorId(Long.parseLong(data.get("autor")));
+//				});
+//		return postBuilder.build();
+		return new LJPost();
 	}
 
 	@Override
-	public List<Post> loadFromLJ(Author autor, String lastSync) {
+	public List<LJPost> loadFromLJ(Author autor, String lastSync) {
 		Template t = ve.getTemplate( "getevents2.vm" ,"UTF-8");
 	    VelocityContext context = new VelocityContext();
 	    context.put("journal", autor.getName());
@@ -143,7 +153,7 @@ public class LJClientImpl implements LJClient {
 	}
 	
 	@Override
-	public List<Post> loadFromLJ(Author author, int year, int month, int day) {
+	public List<LJPost> loadFromLJ(Author author, int year, int month, int day) {
 		
 		String fileName = "getevents.vm";		
 	    Template t = ve.getTemplate( fileName, "UTF-8");
@@ -157,6 +167,25 @@ public class LJClientImpl implements LJClient {
 		
 		return loadByReq(reqXml.toString(), author);
 	}
-	
-	
+
+	@Override
+    public List<LJPost> downloadPosts(Author author, int year) {
+		List<LJPost> postList = new ArrayList<>();
+		LocalDate checkedDate = LocalDate.of(year, 1, 1);
+		LocalDate endYearDate = LocalDate.of(year, 12, 31);
+		while (checkedDate.isBefore(endYearDate)) {
+			log.info("Проверяемая дата {}", checkedDate.toString());
+			List<LJPost> newPosts = this.loadFromLJ(author,
+					checkedDate.getYear(), checkedDate.getMonthValue(), checkedDate.getDayOfMonth());
+			postList.addAll(newPosts);
+			checkedDate = checkedDate.plusDays(1);
+			if (checkedDate.getMonthValue() == 1) {
+				checkedDate = checkedDate.plusMonths(1);
+				if (checkedDate.getMonthValue() == 1) {
+					checkedDate = checkedDate.plusYears(1);
+				}
+			}
+		}
+		return postList;
+	}
 }

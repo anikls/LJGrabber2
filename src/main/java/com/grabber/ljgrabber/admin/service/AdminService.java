@@ -1,24 +1,25 @@
-package com.grabber.ljgrabber.service;
+package com.grabber.ljgrabber.admin.service;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
-import com.grabber.ljgrabber.entity.Author;
-import com.grabber.ljgrabber.entity.LinkPost;
-import com.grabber.ljgrabber.entity.Post;
-import com.grabber.ljgrabber.repository.PostRepository;
-import com.grabber.ljgrabber.service.lj.LJClient;
-import com.grabber.ljgrabber.utils.HtmlBuilder;
+import com.grabber.ljgrabber.db.entity.Post;
+import com.grabber.ljgrabber.db.service.PostService;
+import com.grabber.ljgrabber.lj.entity.Author;
+import com.grabber.ljgrabber.lj.entity.LJPost;
+import com.grabber.ljgrabber.lj.service.LJClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,21 +28,44 @@ import java.util.List;
 @Slf4j
 public class AdminService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final PostRepository postRepository;
+    private final PostService postService;
     private final LJClient ljClient;
     private final ApplicationProperties applicationProperties;
+    private final ModelMapper modelMapper;
 
     @GetMapping("/posts")
     public List<Post> retrieveAllPosts() {
-        return postRepository.readAll();
+        return postService.findAll();
     }
 
     @GetMapping("/posts/{id}")
     public Post retrievePost(@PathVariable long id) {
-        return postRepository.read(id)
+        return postService.getById(id)
                 .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/posts/download/lj")
+    public ResponseEntity downloadPosts() {
+        Author author = Author.builder()
+                .id(1L)
+                .name(applicationProperties.getAuthor())
+                .build();
+        String lastEventTime = applicationProperties.getStartDate();
+        LocalDate lastDate = LocalDate.parse(lastEventTime, FORMATTER);
+
+        List<LJPost> ljPosts = new ArrayList<>();
+//        while (lastDate.isBefore(LocalDate.now())) {
+//            ljPosts.addAll(ljClient.downloadPosts(author, lastDate.getYear()));
+//            lastDate = lastDate.plusYears(1);
+//        }
+        ljPosts.addAll(ljClient.downloadPosts(author, 2020));
+        ljPosts.stream().map(ljPost -> modelMapper
+                .map(ljPost, Post.class))
+                .forEach(post ->  postService.save(post));
+
+        return ResponseEntity.ok().build();
+    }
+/*
     @GetMapping("/posts/new")
     public ResponseEntity loadNewPosts(
             @Nullable
@@ -53,7 +77,7 @@ public class AdminService {
                 .build();
 
         if (lastDate == null) {
-            String lastEventTime = postRepository.lastPost()
+            String lastEventTime = postRepository.getLastPost()
                     .map(post -> post.getEventtime())
                     .orElse(applicationProperties.getStartDate());
             lastDate = LocalDate.parse(lastEventTime, FORMATTER);
@@ -61,7 +85,7 @@ public class AdminService {
 
         while (lastDate.isBefore(LocalDate.now())) {
             log.info("Проверяемая дата {}", lastDate.toString());
-            List<Post> newPosts = ljClient.loadFromLJ(author,
+            List<LJPost> newPosts = ljClient.loadFromLJ(author,
                     lastDate.getYear(), lastDate.getMonthValue(), lastDate.getDayOfMonth());
             if (!newPosts.isEmpty()) {
                 postRepository.saveNew(newPosts);
@@ -82,11 +106,11 @@ public class AdminService {
             outDir.mkdirs();
         }
 
-        String firstEventTime = postRepository.firstPost()
+        String firstEventTime = postRepository.getFirstPost()
                 .map(post -> post.getEventtime())
                 .orElse(applicationProperties.getStartDate());
         Integer startYear = LocalDate.parse(firstEventTime, FORMATTER).getYear();
-        String lastEventTime = postRepository.lastPost()
+        String lastEventTime = postRepository.getLastPost()
                 .map(post -> post.getEventtime())
                 .orElse(applicationProperties.getStartDate());
         Integer endYear = LocalDate.parse(lastEventTime, FORMATTER).getYear();
@@ -108,20 +132,20 @@ public class AdminService {
                 }
             }
 
-            List<Post> allPosts = postRepository.readAllByYear(sCurrentYear);
+            List<LJPost> allPosts = postRepository.findAllByYear(sCurrentYear);
             HtmlBuilder.generateOneHtml("index.vm",
                     applicationProperties.getOutPath()+"html\\"+currentYear+".html",
                     predYear,
                     nextYear,
                     allPosts);
-            for (Post post: allPosts)
+            for (LJPost post: allPosts)
                 HtmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"+post.getItemid()+".html", post);
 
         }
 
 
         String currentYear = String.valueOf(endYear);
-        List<Post> allPosts = postRepository.readAllByYear(currentYear);
+        List<LJPost> allPosts = postRepository.findAllByYear(currentYear);
         LinkPost predYear = endYear == startYear
                 ? null :
                 new LinkPost( (endYear - 1) +".html", String.valueOf(endYear - 1));
@@ -130,10 +154,10 @@ public class AdminService {
                 predYear,
                 null,
                 allPosts);
-        for (Post post: allPosts)
+        for (LJPost post: allPosts)
             HtmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"+post.getItemid()+".html", post);
 
         return ResponseEntity.ok().build();
     }
-
+*/
 }
