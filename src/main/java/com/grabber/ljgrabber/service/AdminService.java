@@ -68,16 +68,16 @@ public class AdminService {
             }
 
             lastDate = lastDate.plusDays(1);
-            if (lastDate.getMonthValue() == 1) {
+            /**if (lastDate.getMonthValue() == 1) {
                 lastDate = lastDate.plusMonths(1);
                 if (lastDate.getMonthValue() == 1) {
                     lastDate = lastDate.plusYears(1);
                 }
-            }
+            }**/
         }
 
 
-        File outDir = new File(applicationProperties.getOutPath()+"\\html\\post");
+        File outDir = new File(applicationProperties.getOutPath() + "\\html\\post");
         if (!outDir.exists()) {
             outDir.mkdirs();
         }
@@ -95,10 +95,15 @@ public class AdminService {
         for (Integer currentYear = startYear; currentYear < endYear; currentYear++) {
             String sCurrentYear = String.valueOf(currentYear);
 
+            File outDirPost = new File(outDir.getPath()+"\\"+sCurrentYear);
+            if (!outDirPost.exists()) {
+                outDirPost.mkdirs();
+            }
+
             LinkPost predYear = null;
             if (currentYear > startYear) {
                 predYear = new LinkPost((currentYear - 1)+".html", String.valueOf(currentYear - 1));
-            };
+            }
             LinkPost nextYear = null;
             if (currentYear < endYear) {
                 if (currentYear + 1 == endYear) {
@@ -110,28 +115,40 @@ public class AdminService {
 
             List<Post> allPosts = postRepository.readAllByYear(sCurrentYear);
             HtmlBuilder.generateOneHtml("index.vm",
-                    applicationProperties.getOutPath()+"html\\"+currentYear+".html",
+                    applicationProperties.getOutPath() + "html\\"+currentYear + ".html",
                     predYear,
+                    sCurrentYear,
                     nextYear,
                     allPosts);
             for (Post post: allPosts)
-                HtmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"+post.getItemid()+".html", post);
+                HtmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"
+                        + sCurrentYear + "\\" + post.getItemid()+".html", post);
 
         }
 
 
         String currentYear = String.valueOf(endYear);
+
+        File outDirPost = new File(outDir.getPath()+"\\"+currentYear);
+        if (!outDirPost.exists()) {
+            outDirPost.mkdirs();
+        }
+
         List<Post> allPosts = postRepository.readAllByYear(currentYear);
         LinkPost predYear = endYear == startYear
                 ? null :
-                new LinkPost( (endYear - 1) +".html", String.valueOf(endYear - 1));
+                new LinkPost( (endYear - 1) + ".html", String.valueOf(endYear - 1));
         HtmlBuilder.generateOneHtml("index.vm",
-                applicationProperties.getOutPath()+"html\\index.html",
+                applicationProperties.getOutPath() + "html\\index.html",
                 predYear,
+                currentYear,
                 null,
                 allPosts);
         for (Post post: allPosts)
-            HtmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"+post.getItemid()+".html", post);
+            HtmlBuilder.generateHtml(applicationProperties.getOutPath()
+                    + "html\\post\\"
+                    + currentYear + "\\"
+                    + post.getItemid()+".html", post);
 
         return ResponseEntity.ok().build();
     }
