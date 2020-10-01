@@ -1,12 +1,11 @@
 package com.grabber.ljgrabber.db.service;
 
-import com.grabber.ljgrabber.db.entity.Post;
+import com.grabber.ljgrabber.entity.dto.PostDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PostService {
-    void save(Post post);
-    List<Post> findAll();
-    Optional<Post> getById(Long id);
+    void save(PostDto post);
+    List<PostDto> findAll();
+    PostDto getById(Long id);
 }

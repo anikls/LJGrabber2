@@ -27,7 +27,7 @@ public class Post {
     @Column(name = "url", nullable = false)
 	private String url;
 
-    @Column(name = "body", nullable = false)
+    @Column(name = "body", nullable = false, columnDefinition="TEXT")
 	private String body;
 
     @Column(name = "author_id", nullable = false)

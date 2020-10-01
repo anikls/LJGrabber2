@@ -20,4 +20,6 @@ public class ApplicationProperties {
 
     /** Ключ яндекс переводчика. */
     String translateKey;
+
+
 }

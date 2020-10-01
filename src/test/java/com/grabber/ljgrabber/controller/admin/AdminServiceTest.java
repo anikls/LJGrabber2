@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.admin.service;
+package com.grabber.ljgrabber.controller.admin;
 
 //@SpringBootTest
 //@RunWith(SpringRunner.class)

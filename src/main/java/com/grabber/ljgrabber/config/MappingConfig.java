@@ -1,13 +1,18 @@
-package com.grabber.ljgrabber;
+package com.grabber.ljgrabber.config;
 
 import com.grabber.ljgrabber.mapper.LJPost2PostMapper;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@org.springframework.context.annotation.Configuration
-public class LJConfiguration {
+@Configuration
+@RequiredArgsConstructor
+public class MappingConfig {
+
+    //private final LJPost2PostMapper ljPost2PostMapper;
+
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
@@ -15,8 +20,9 @@ public class LJConfiguration {
                 .setMatchingStrategy(MatchingStrategies.STRICT)
                 .setFieldMatchingEnabled(true)
                 .setSkipNullEnabled(true)
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
         mapper.addMappings(new LJPost2PostMapper());
+
         return mapper;
     }
 }

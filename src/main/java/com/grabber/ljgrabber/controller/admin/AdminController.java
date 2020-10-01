@@ -1,69 +1,68 @@
-package com.grabber.ljgrabber.admin.service;
+package com.grabber.ljgrabber.controller.admin;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
-import com.grabber.ljgrabber.db.entity.Post;
 import com.grabber.ljgrabber.db.service.PostService;
+import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.lj.entity.Author;
 import com.grabber.ljgrabber.lj.entity.LJPost;
 import com.grabber.ljgrabber.lj.service.LJClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Контроллер для администрирования приложения.
+ * @author aniko
+ */
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @Slf4j
-public class AdminService {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+public class AdminController {
+
     private final PostService postService;
     private final LJClient ljClient;
     private final ApplicationProperties applicationProperties;
+
+    /**
+     * Маппер для преобразования сущностей.
+     */
     private final ModelMapper modelMapper;
 
     @GetMapping("/posts")
-    public List<Post> retrieveAllPosts() {
+    public List<PostDto> retrieveAllPosts() {
         return postService.findAll();
     }
 
     @GetMapping("/posts/{id}")
-    public Post retrievePost(@PathVariable long id) {
-        return postService.getById(id)
-                .orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND));
+    public PostDto retrievePost(@PathVariable long id) {
+        return postService.getById(id);
     }
 
-    @GetMapping("/posts/download/lj")
-    public ResponseEntity downloadPosts() {
+    /**
+     * Загрузка публикаций из LJ за указанный год в БД.
+     *
+     * @param year год загрузки публикаций
+     * @return
+     */
+    @GetMapping("/posts/download/lj/{year}")
+    public ResponseEntity<String> downloadPosts(@PathVariable("year") Integer year) {
         Author author = Author.builder()
                 .id(1L)
                 .name(applicationProperties.getAuthor())
                 .build();
-        String lastEventTime = applicationProperties.getStartDate();
-        LocalDate lastDate = LocalDate.parse(lastEventTime, FORMATTER);
 
-        List<LJPost> ljPosts = new ArrayList<>();
-//        while (lastDate.isBefore(LocalDate.now())) {
-//            ljPosts.addAll(ljClient.downloadPosts(author, lastDate.getYear()));
-//            lastDate = lastDate.plusYears(1);
-//        }
-        ljPosts.addAll(ljClient.downloadPosts(author, 2020));
-        ljPosts.stream().map(ljPost -> modelMapper
-                .map(ljPost, Post.class))
-                .forEach(post ->  postService.save(post));
+        List<LJPost> ljPosts = ljClient.downloadPosts(author, year);
+        ljPosts.forEach(ljpost -> postService.save( modelMapper.map(ljpost, PostDto.class)));
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Успешно загружено " + ljPosts.size() + " публикаций из LJ за " + year + " год");
     }
 /*
     @GetMapping("/posts/new")
