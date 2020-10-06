@@ -44,16 +44,18 @@ public class HtmlBuilder {
 	public static void generateOneHtml(String template,
                                        String outFileName,
                                        LinkPost predYear,
+									   String currYear,
                                        LinkPost nextYear,
                                        List<LJPost> listPost){
 						
 	    Template t = getVE().getTemplate( template,"UTF-8");
 	    VelocityContext context = new VelocityContext();
-	    context.put("title", "Все сны Немо");
-	    context.put("header", "Все сны Немо");
+	    context.put("title", "Все предсказания Немо");
+	    context.put("header", "Все предсказания Немо");
 	    context.put("postList", listPost);
 		context.put("predYear", predYear);
         context.put("nextYear", nextYear);
+		context.put("currYear", currYear);
 		try (FileWriter outHtml = new FileWriter(outFileName)) {
 			t.merge( context, outHtml );			
 		}catch(Exception e){

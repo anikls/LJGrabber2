@@ -88,21 +88,21 @@
 			#set($c = $postList.size())
 			#foreach ($i in $postList)
 			#set($c = $c - 1)
-			#set($LJPost = $postList.get($c))
-    		<div class="LJPost-preview">
-                <a href="/LJPost/${LJPost.itemid}.html">
-                    <h2 class="LJPost-title">$!LJPost.subject</h2>
-					#set ($stringLength = $LJPost.text.length())
+			#set($post = $postList.get($c))
+    		<div class="post-preview">
+                <a href="/post/${currYear}/${post.itemid}.html">
+                    <h2 class="post-title">$!post.subject</h2>
+					#set ($stringLength = $post.text.length())
 					#if ($stringLength>300)
 						#set ($stringLength = 300)
 					#end
-                    <h4 class="LJPost-subtitle">
-						${LJPost.text.substring(0,$stringLength)}...
+                    <h4 class="post-subtitle">
+						${post.text.substring(0,$stringLength)}...
                     </h4>
                 </a>
-                <p class="LJPost-meta">Опубликовано в
-                    <a href="${LJPost.url}">Live Journal</a>
-					${LJPost.eventtime}</p>
+                <p class="post-meta">Опубликовано в
+                    <a href="${post.url}">Live Journal</a>
+					${post.eventtime}</p>
             </div>
             <hr>
 			#end
