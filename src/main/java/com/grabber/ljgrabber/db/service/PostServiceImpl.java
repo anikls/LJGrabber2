@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +43,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getById(Long id){
-        return postRepository.readById(id).map(post -> modelMapper.map(post, PostDto.class))
+        return postRepository.readById(id)
+                .map(post -> modelMapper.map(post, PostDto.class))
                 .orElseThrow(PostNotFoundException::new);
     }
+
+    @Override
+    public Optional<PostDto> getLastPost() {
+        return postRepository.findFirstByOrderByEventTimeDesc()
+                .map(post -> modelMapper.map(post, PostDto.class));
+    }
+
 }

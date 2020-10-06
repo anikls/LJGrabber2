@@ -1,9 +1,12 @@
 package com.grabber.ljgrabber.db.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,9 +20,8 @@ public class Post {
 	@Column(name = "id_post", nullable = false)
 	private long id;
 
-	@Column(name = "event_time", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-	private Date eventTime;
+	@Column(name = "event_time", columnDefinition = "DATETIME", nullable = false)
+    private LocalDateTime eventTime;
 
     @Column(name = "subject")
 	private String subject;
@@ -30,6 +32,6 @@ public class Post {
     @Column(name = "body", nullable = false, columnDefinition="TEXT")
 	private String body;
 
-    @Column(name = "author_id", nullable = false)
-	private Long authorId;
+    @Column(name = "author", nullable = false)
+	private String author;
 }

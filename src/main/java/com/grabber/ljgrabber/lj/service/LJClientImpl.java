@@ -1,6 +1,5 @@
 package com.grabber.ljgrabber.lj.service;
 
-import com.grabber.ljgrabber.lj.entity.Author;
 import com.grabber.ljgrabber.lj.entity.LJPost;
 import com.grabber.ljgrabber.utils.Conversion;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +45,7 @@ public class LJClientImpl implements LJClient {
         ve.init();
     }
 
-    private List<LJPost> loadByReq(String reqXml, Author autor) {
+    private List<LJPost> loadByReq(String reqXml, String author) {
 
         List<LJPost> listPost = new ArrayList();
 
@@ -91,7 +90,7 @@ public class LJClientImpl implements LJClient {
                     }
                     if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) map.put(key, value);
                 }
-                map.put("autor", String.valueOf(autor.getId()));
+                map.put("author", author);
                 if (!map.isEmpty() && map.containsKey("itemid")) {
                     LJPost p = generatePost(map);
                     log.info("loaded post {}", p);
@@ -131,32 +130,30 @@ public class LJClientImpl implements LJClient {
 				.ifPresent(item -> postBuilder.event(item));
 		Optional.ofNullable(data.get("reply_count"))
 				.ifPresent(item -> postBuilder.reply_count(item));
-		Optional.ofNullable(data.get("autor"))
-				.ifPresent(item -> {
-					postBuilder.autorId(Long.parseLong(data.get("autor")));
-				});
+		Optional.ofNullable(data.get("author"))
+				.ifPresent(item -> postBuilder.author(item));
 		return postBuilder.build();
     }
 
     @Override
-    public List<LJPost> loadFromLJ(Author autor, String lastSync) {
+    public List<LJPost> loadFromLJ(String author, String lastSync) {
         Template t = ve.getTemplate("getevents2.vm", "UTF-8");
         VelocityContext context = new VelocityContext();
-        context.put("journal", autor.getName());
+        context.put("journal", author);
         context.put("lastsync", lastSync);
         StringWriter reqXml = new StringWriter();
         t.merge(context, reqXml);
 
-        return loadByReq(reqXml.toString(), autor);
+        return loadByReq(reqXml.toString(), author);
     }
 
     @Override
-    public List<LJPost> loadFromLJ(Author author, int year, int month, int day) {
+    public List<LJPost> loadFromLJ(String author, int year, int month, int day) {
 
         String fileName = "getevents.vm";
         Template t = ve.getTemplate(fileName, "UTF-8");
         VelocityContext context = new VelocityContext();
-        context.put("journal", author.getName());
+        context.put("journal", author);
         context.put("year", year);
         context.put("month", month);
         context.put("day", day);
@@ -167,7 +164,7 @@ public class LJClientImpl implements LJClient {
     }
 
     @Override
-    public List<LJPost> downloadPosts(Author author, int year) {
+    public List<LJPost> downloadPosts(String author, int year) {
         List<LJPost> postList = new ArrayList<>();
         LocalDate checkedDate = LocalDate.of(year, 1, 1);
         LocalDate endYearDate = LocalDate.of(year, 12, 31);

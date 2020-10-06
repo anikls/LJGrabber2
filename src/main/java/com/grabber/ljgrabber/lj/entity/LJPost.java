@@ -1,5 +1,6 @@
 package com.grabber.ljgrabber.lj.entity;
 
+
 import lombok.*;
 import org.jsoup.Jsoup;
 
@@ -39,8 +40,8 @@ public class LJPost {
 	private String event;
 	@XmlElement(name="reply_count")
 	private String reply_count;
-	@XmlElement(name="autor")
-	private Long autorId;
+	@XmlElement(name="author")
+	private String author;
 
 	public String getEventText() {
 		return Jsoup.parse(event).text();

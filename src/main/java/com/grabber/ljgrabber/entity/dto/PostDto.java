@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +15,7 @@ public class PostDto {
 
 	private long id;
 
-	private Date eventTime;
+	private LocalDateTime eventTime;
 
 	private String subject;
 
@@ -23,5 +23,5 @@ public class PostDto {
 
 	private String body;
 
-	private Long authorId;
+	private String author;
 }
