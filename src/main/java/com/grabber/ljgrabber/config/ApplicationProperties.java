@@ -15,9 +15,6 @@ public class ApplicationProperties {
     /** Папка формирования выходных файлов. */
     String outPath;
 
-    /** Автор поста. */
-    String author;
-
     /** Дата, с которой начинаем просматривать посты. */
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate startDate;
