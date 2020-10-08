@@ -1,17 +1,22 @@
-package com.grabber.ljgrabber.utils;
+package com.grabber.ljgrabber.component;
 
-import com.grabber.ljgrabber.lj.entity.LJPost;
-import com.grabber.ljgrabber.lj.entity.LinkPost;
+import com.grabber.ljgrabber.entity.dto.PostDto;
+import com.grabber.ljgrabber.entity.html.LinkPost;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.util.List;
 
+/**
+ * Компонет для геерации html страниц по шаблону.
+ */
 @Slf4j
+@Component
 public class HtmlBuilder {
 	
 	private static VelocityEngine ve;
@@ -24,13 +29,15 @@ public class HtmlBuilder {
 		return ve;
 	}
 	
-	public static void generateHtml(String outFileName, LJPost post){
+	public void generateHtml(String outFileName, PostDto post){
 		
-		String fileName = "post.vm";		
+		String fileName = "template/html/post.vm";
 	    Template t = getVE().getTemplate( fileName,"UTF-8");
 	    VelocityContext context = new VelocityContext();
-	    context.put("title", StringUtils.isBlank(post.getSubject())?post.getEventtime():post.getSubject());
-	    context.put("header", StringUtils.isBlank(post.getSubject())?post.getEventtime():post.getSubject());
+	    context.put("title",
+				StringUtils.isBlank(post.getSubject()) ? post.getEventTime() : post.getSubject());
+	    context.put("header",
+				StringUtils.isBlank(post.getSubject()) ? post.getEventTime() : post.getSubject());
 
 	    context.put("post", post);	          
 
@@ -41,12 +48,12 @@ public class HtmlBuilder {
 		}
 	}
 	
-	public static void generateOneHtml(String template,
+	public void generateOneHtml(String template,
                                        String outFileName,
                                        LinkPost predYear,
-									   String currYear,
+									   Integer currYear,
                                        LinkPost nextYear,
-                                       List<LJPost> listPost){
+                                       List<PostDto> listPost){
 						
 	    Template t = getVE().getTemplate( template,"UTF-8");
 	    VelocityContext context = new VelocityContext();

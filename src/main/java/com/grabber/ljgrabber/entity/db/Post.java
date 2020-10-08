@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.db.entity;
+package com.grabber.ljgrabber.entity.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Table(name = "POST")
 public class Post {
 	@Id
-	@GeneratedValue
 	@Column(name = "id_post", nullable = false)
 	private long id;
 

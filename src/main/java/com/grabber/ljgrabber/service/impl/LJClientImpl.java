@@ -1,6 +1,7 @@
-package com.grabber.ljgrabber.lj.service;
+package com.grabber.ljgrabber.service.impl;
 
-import com.grabber.ljgrabber.lj.entity.LJPost;
+import com.grabber.ljgrabber.entity.lj.LJPost;
+import com.grabber.ljgrabber.service.LJClient;
 import com.grabber.ljgrabber.utils.Conversion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,9 +84,6 @@ public class LJClientImpl implements LJClient {
                                 value = Conversion.base64ToString(value, "UTF-8");
 
                             }
-//                            if (key.equals("event")) {
-//                                value = value.replaceAll("\r\n", "<br/>");
-//                            }
                         }
                     }
                     if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) map.put(key, value);
@@ -137,7 +135,7 @@ public class LJClientImpl implements LJClient {
 
     @Override
     public List<LJPost> loadFromLJ(String author, String lastSync) {
-        Template t = ve.getTemplate("getevents2.vm", "UTF-8");
+        Template t = ve.getTemplate("template/lj/getevents2.vm", "UTF-8");
         VelocityContext context = new VelocityContext();
         context.put("journal", author);
         context.put("lastsync", lastSync);
@@ -150,7 +148,7 @@ public class LJClientImpl implements LJClient {
     @Override
     public List<LJPost> loadFromLJ(String author, int year, int month, int day) {
 
-        String fileName = "getevents.vm";
+        String fileName = "template/lj/getevents.vm";
         Template t = ve.getTemplate(fileName, "UTF-8");
         VelocityContext context = new VelocityContext();
         context.put("journal", author);

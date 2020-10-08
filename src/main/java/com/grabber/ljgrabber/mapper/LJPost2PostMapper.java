@@ -1,11 +1,10 @@
 package com.grabber.ljgrabber.mapper;
 
 import com.grabber.ljgrabber.entity.dto.PostDto;
-import com.grabber.ljgrabber.lj.entity.LJPost;
+import com.grabber.ljgrabber.entity.lj.LJPost;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

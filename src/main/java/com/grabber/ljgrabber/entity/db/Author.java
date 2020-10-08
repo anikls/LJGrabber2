@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.db.entity;
+package com.grabber.ljgrabber.entity.db;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,10 +1,10 @@
-package com.grabber.ljgrabber.controller.admin;
+package com.grabber.ljgrabber.controller;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
-import com.grabber.ljgrabber.db.service.PostService;
+import com.grabber.ljgrabber.service.PostService;
 import com.grabber.ljgrabber.entity.dto.PostDto;
-import com.grabber.ljgrabber.lj.entity.LJPost;
-import com.grabber.ljgrabber.lj.service.LJClient;
+import com.grabber.ljgrabber.entity.lj.LJPost;
+import com.grabber.ljgrabber.service.LJClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -13,19 +13,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Контроллер для администрирования приложения.
+ * Контроллер для синхронизации данных.
+ *
  * @author aniko
  */
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/sync")
 @RequiredArgsConstructor
 @Slf4j
-public class AdminController {
+public class SyncController {
 
     private final PostService postService;
     private final LJClient ljClient;
@@ -36,25 +36,16 @@ public class AdminController {
      */
     private final ModelMapper modelMapper;
 
-    @GetMapping("/posts")
-    public List<PostDto> retrieveAllPosts() {
-        return postService.findAll();
-    }
-
-    @GetMapping("/posts/{id}")
-    public PostDto retrievePost(@PathVariable long id) {
-        return postService.getById(id);
-    }
-
     /**
      * Загрузка публикаций из LJ за указанный год в БД.
-     *
+     * @param author автор публикаций
      * @param year год загрузки публикаций
      * @return
      */
-    @GetMapping("/posts/download/lj/{year}")
-    public ResponseEntity<String> downloadPosts(@PathParam("year") Integer year,
-                                                @PathParam("author") String author) {
+    @GetMapping("/lj/{author}/{year}")
+    public ResponseEntity<String> downloadPosts(@PathVariable("author") String author,
+                                                @PathVariable("year") Integer year)
+     {
 
         List<LJPost> ljPosts = ljClient.downloadPosts(author, year);
         ljPosts.forEach(ljpost -> postService.save( modelMapper.map(ljpost, PostDto.class)));
@@ -68,9 +59,9 @@ public class AdminController {
      *
      * @return
      */
-    @GetMapping("/posts/download/lj/new")
+    @GetMapping("/lj/{author}")
     public ResponseEntity loadNewPosts(
-            @PathParam("author") String author,
+            @PathVariable("author") String author,
             @Nullable
             @RequestParam("lastDate")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate lastDate) {
@@ -78,7 +69,7 @@ public class AdminController {
         final StringBuffer console = new StringBuffer();
 
         if (lastDate == null) {
-            lastDate = postService.getLastPost()
+            lastDate = postService.getLastPost(author)
                     .map(post -> post.getEventTime().toLocalDate())
                     .orElse(applicationProperties.getStartDate());
         }

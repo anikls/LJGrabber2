@@ -1,4 +1,4 @@
-package com.grabber.ljgrabber.lj.entity;
+package com.grabber.ljgrabber.entity.lj;
 
 
 import lombok.*;
