@@ -1,8 +1,11 @@
 package com.grabber.ljgrabber.service.impl;
 
+import com.grabber.ljgrabber.config.ApplicationProperties;
 import com.grabber.ljgrabber.entity.lj.LJPost;
 import com.grabber.ljgrabber.service.LJClient;
+import com.grabber.ljgrabber.service.PostService;
 import com.grabber.ljgrabber.utils.Conversion;
+import com.grabber.ljgrabber.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +30,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -37,6 +41,10 @@ public class LJClientImpl implements LJClient {
 
     private static final String URL = "http://www.livejournal.com/interface/xmlrpc";
     private static final RestTemplate restTemplate = new RestTemplate();
+
+    private final PostService postService;
+    private final ApplicationProperties applicationProperties;
+
 
     private VelocityEngine ve;
 
@@ -51,8 +59,6 @@ public class LJClientImpl implements LJClient {
         List<LJPost> listPost = new ArrayList();
 
         try {
-
-            //String response = http.sendPOST(URL , reqXml.toString(), Proxy.NO_PROXY);
             ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, reqXml, String.class);
             String response = responseEntity.getBody();
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -81,7 +87,7 @@ public class LJClientImpl implements LJClient {
                         if (val.getNodeName().equals("value")) {
                             value = val.getTextContent();
                             if (Conversion.isBase64(value)) {
-                                value = Conversion.base64ToString(value, "UTF-8");
+                                value = Conversion.base64ToString(value, StandardCharsets.UTF_8.name());
 
                             }
                         }
@@ -91,12 +97,12 @@ public class LJClientImpl implements LJClient {
                 map.put("author", author);
                 if (!map.isEmpty() && map.containsKey("itemid")) {
                     LJPost p = generatePost(map);
-                    log.info("loaded post {}", p);
+                    log.info("loaded post {}", p.getItemid());
                     if (p != null) listPost.add(p);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
 
         return listPost;
@@ -115,46 +121,34 @@ public class LJClientImpl implements LJClient {
 		Optional.ofNullable(data.get("url"))
 				.ifPresent(item -> postBuilder.url(item));
 		Optional.ofNullable(data.get("can_comment"))
-				.ifPresent(item -> postBuilder.can_comment(item));
+				.ifPresent(item -> postBuilder.canComment(item));
 		Optional.ofNullable(data.get("logtime"))
 				.ifPresent(item -> postBuilder.logtime(item));
 		Optional.ofNullable(data.get("event_timestamp"))
-				.ifPresent(item -> postBuilder.event_timestamp(item));
+				.ifPresent(item -> postBuilder.eventTimestamp(item));
 		Optional.ofNullable(data.get("lastsync"))
 				.ifPresent(item -> postBuilder.lastsync(item));
 		Optional.ofNullable(data.get("ditemid"))
 				.ifPresent(item -> postBuilder.ditemid(item));
 		Optional.ofNullable(data.get("event"))
 				.ifPresent(item -> postBuilder.event(item));
-		Optional.ofNullable(data.get("reply_count"))
-				.ifPresent(item -> postBuilder.reply_count(item));
+		Optional.ofNullable(data.get("replyCount"))
+				.ifPresent(item -> postBuilder.replyCount(item));
 		Optional.ofNullable(data.get("author"))
 				.ifPresent(item -> postBuilder.author(item));
 		return postBuilder.build();
     }
 
     @Override
-    public List<LJPost> loadFromLJ(String author, String lastSync) {
-        Template t = ve.getTemplate("template/lj/getevents2.vm", "UTF-8");
-        VelocityContext context = new VelocityContext();
-        context.put("journal", author);
-        context.put("lastsync", lastSync);
-        StringWriter reqXml = new StringWriter();
-        t.merge(context, reqXml);
-
-        return loadByReq(reqXml.toString(), author);
-    }
-
-    @Override
-    public List<LJPost> loadFromLJ(String author, int year, int month, int day) {
+    public List<LJPost> loadFromLJ(String author, LocalDate date) {
 
         String fileName = "template/lj/getevents.vm";
-        Template t = ve.getTemplate(fileName, "UTF-8");
+        Template t = ve.getTemplate(fileName, StandardCharsets.UTF_8.name());
         VelocityContext context = new VelocityContext();
         context.put("journal", author);
-        context.put("year", year);
-        context.put("month", month);
-        context.put("day", day);
+        context.put("year", date.getYear());
+        context.put("month", date.getMonthValue());
+        context.put("day", date.getDayOfMonth());
         StringWriter reqXml = new StringWriter();
         t.merge(context, reqXml);
 
@@ -164,24 +158,39 @@ public class LJClientImpl implements LJClient {
     @Override
     public List<LJPost> downloadPosts(String author, int year) {
         List<LJPost> postList = new ArrayList<>();
-        LocalDate checkedDate = LocalDate.of(year, 1, 1);
-        LocalDate endYearDate = LocalDate.of(year, 12, 31);
-        LocalDate nowDate = LocalDate.now();
 
-        while (checkedDate.isBefore(endYearDate) || checkedDate.equals(endYearDate)
-                && checkedDate.isBefore(nowDate) || checkedDate.equals(nowDate)) {
-            log.info("Проверяемая дата {}", checkedDate.toString());
-            List<LJPost> newPosts = this.loadFromLJ(author,
-                    checkedDate.getYear(), checkedDate.getMonthValue(), checkedDate.getDayOfMonth());
-            postList.addAll(newPosts);
-            checkedDate = checkedDate.plusDays(1);
-            if (checkedDate.getMonthValue() == 1) {
-                checkedDate = checkedDate.plusMonths(1);
-                if (checkedDate.getMonthValue() == 1) {
-                    checkedDate = checkedDate.plusYears(1);
-                }
-            }
+        // Первый день года
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        // Последний день года
+        LocalDate endYearDate = LocalDate.of(year, 12, 31);
+
+        DateUtils.getDatesBetween(startDate, endYearDate)
+                .forEach(checkedDate -> {
+                    log.info("Проверяемая дата {}", checkedDate.toString());
+                    postList.addAll(this.loadFromLJ(author, checkedDate));
+                });
+        return postList;
+    }
+
+    @Override
+    public List<LJPost> downloadNewPosts(String author, LocalDate startDate) {
+        List<LJPost> postList = new ArrayList<>();
+
+        // Первый день года
+        if (startDate == null) {
+            startDate = postService.getLastPost(author)
+                    .map(post -> post.getEventTime().toLocalDate())
+                    .orElse(applicationProperties.getStartDate());
         }
+
+        // Текущая дата
+        LocalDate endDate = LocalDate.now();
+
+        DateUtils.getDatesBetween(startDate, endDate)
+                .forEach(checkedDate -> {
+                    log.info("Проверяемая дата {}", checkedDate.toString());
+                    postList.addAll(this.loadFromLJ(author, checkedDate));
+                });
         return postList;
     }
 }

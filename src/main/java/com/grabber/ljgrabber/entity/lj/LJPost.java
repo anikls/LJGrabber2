@@ -27,11 +27,11 @@ public class LJPost {
 	@XmlElement(name="url")
 	private String url;
 	@XmlElement(name="can_comment")
-	private String can_comment;
+	private String canComment;
 	@XmlElement(name="logtime")
 	private String logtime;
 	@XmlElement(name="event_timestamp")
-	private String event_timestamp;
+	private String eventTimestamp;
 	@XmlElement(name="lastsync")
 	private String lastsync;
 	@XmlElement(name="ditemid")
@@ -39,7 +39,7 @@ public class LJPost {
 	@XmlElement(name="event")
 	private String event;
 	@XmlElement(name="reply_count")
-	private String reply_count;
+	private String replyCount;
 	@XmlElement(name="author")
 	private String author;
 

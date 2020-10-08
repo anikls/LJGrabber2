@@ -35,11 +35,11 @@ public class HtmlServiceImpl implements HtmlService {
         }
 
         LocalDateTime firstEventTime = postService.getFirstPost(author)
-                .map(post -> post.getEventTime())
+                .map(PostDto::getEventTime)
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
         Integer startYear = firstEventTime.getYear();
         LocalDateTime lastEventTime = postService.getLastPost(author)
-                .map(post -> post.getEventTime())
+                .map(PostDto::getEventTime)
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
         Integer endYear = lastEventTime.getYear();
 
@@ -47,7 +47,7 @@ public class HtmlServiceImpl implements HtmlService {
         for (Integer currentYear = startYear; currentYear < endYear; currentYear++) {
             Integer sCurrentYear = currentYear;
 
-            File outDirPost = new File(outDir.getPath()+"\\"+sCurrentYear);
+            File outDirPost = new File(outDir.getPath(),String.valueOf(sCurrentYear));
             if (!outDirPost.exists()) {
                 outDirPost.mkdirs();
             }
@@ -81,13 +81,13 @@ public class HtmlServiceImpl implements HtmlService {
 
         Integer currentYear = endYear;
 
-        File outDirPost = new File(outDir.getPath()+"\\"+currentYear);
+        File outDirPost = new File(outDir.getPath(), String.valueOf(currentYear));
         if (!outDirPost.exists()) {
             outDirPost.mkdirs();
         }
 
         List<PostDto> allPosts = postService.findAllByYear(author, currentYear);
-        LinkPost predYear = endYear == startYear
+        LinkPost predYear = endYear.equals(startYear)
                 ? null :
                 new LinkPost( (endYear - 1) + ".html", String.valueOf(endYear - 1));
         htmlBuilder.generateOneHtml("template/html/index.vm",

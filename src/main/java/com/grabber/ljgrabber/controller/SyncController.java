@@ -1,6 +1,7 @@
 package com.grabber.ljgrabber.controller;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
+import com.grabber.ljgrabber.exception.PostExistsException;
 import com.grabber.ljgrabber.service.PostService;
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.entity.lj.LJPost;
@@ -29,7 +30,6 @@ public class SyncController {
 
     private final PostService postService;
     private final LJClient ljClient;
-    private final ApplicationProperties applicationProperties;
 
     /**
      * Маппер для преобразования сущностей.
@@ -43,14 +43,22 @@ public class SyncController {
      * @return
      */
     @GetMapping("/lj/{author}/{year}")
-    public ResponseEntity<String> downloadPosts(@PathVariable("author") String author,
+    public String downloadPosts(@PathVariable("author") String author,
                                                 @PathVariable("year") Integer year)
      {
+        final StringBuilder console = new StringBuilder();
 
         List<LJPost> ljPosts = ljClient.downloadPosts(author, year);
-        ljPosts.forEach(ljpost -> postService.save( modelMapper.map(ljpost, PostDto.class)));
+         ljPosts.forEach(post -> {
+             try {
+                 postService.save(modelMapper.map(post, PostDto.class));
+                 console.append("Успешно загружена публикация ").append(post.getItemid()).append("<br/>");
+             } catch (PostExistsException e){
+                 console.append("Публикация ").append(post.getItemid()).append(" уже загружена").append("<br/>");
+             }
+         });
 
-        return ResponseEntity.ok("Успешно загружено " + ljPosts.size() + " публикаций из LJ за " + year + " год");
+        return console.toString();
     }
 
     /**
@@ -60,41 +68,25 @@ public class SyncController {
      * @return
      */
     @GetMapping("/lj/{author}")
-    public ResponseEntity loadNewPosts(
+    public String loadNewPosts(
             @PathVariable("author") String author,
             @Nullable
-            @RequestParam("lastDate")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate lastDate) {
+            @RequestParam("startDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate) {
 
-        final StringBuffer console = new StringBuffer();
+        final StringBuilder console = new StringBuilder();
 
-        if (lastDate == null) {
-            lastDate = postService.getLastPost(author)
-                    .map(post -> post.getEventTime().toLocalDate())
-                    .orElse(applicationProperties.getStartDate());
-        }
-
-        while (lastDate.isBefore(LocalDate.now())) {
-            log.info("Проверяемая дата {}", lastDate.toString());
-            List<LJPost> newPosts = ljClient.loadFromLJ(author,
-                    lastDate.getYear(), lastDate.getMonthValue(), lastDate.getDayOfMonth());
-            if (!newPosts.isEmpty()) {
-                newPosts.forEach(ljpost -> {
-                    postService.save( modelMapper.map(ljpost, PostDto.class));
-                    console.append("Сохранен пост от ").append(ljpost.getEventtime()).append("<br/>");
-                });
+        List<LJPost> ljPosts = ljClient.downloadNewPosts(author, startDate);
+        ljPosts.forEach(post -> {
+            try {
+                postService.save(modelMapper.map(post, PostDto.class));
+                console.append("Успешно загружена публикация ").append(post.getItemid()).append("<br/>");
+            } catch (PostExistsException e){
+                console.append("Публикация ").append(post.getItemid()).append(" уже загружена").append("<br/>");
             }
+        });
 
-            lastDate = lastDate.plusDays(1);
-            if (lastDate.getMonthValue() == 1) {
-                lastDate = lastDate.plusMonths(1);
-                if (lastDate.getMonthValue() == 1) {
-                    lastDate = lastDate.plusYears(1);
-                }
-            }
-        }
-
-        return ResponseEntity.ok(console);
+        return console.toString();
     }
 
 }

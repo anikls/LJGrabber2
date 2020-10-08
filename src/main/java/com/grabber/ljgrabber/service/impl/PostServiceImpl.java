@@ -1,6 +1,7 @@
 package com.grabber.ljgrabber.service.impl;
 
 import com.grabber.ljgrabber.entity.db.Post;
+import com.grabber.ljgrabber.exception.PostExistsException;
 import com.grabber.ljgrabber.repository.PostRepository;
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.exception.PostNotFoundException;
@@ -36,7 +37,8 @@ public class PostServiceImpl implements PostService {
     public void save(PostDto post) {
         Assert.notNull(post, "Post must not be null!");
         if (postRepository.existsById(post.getId())) {
-            log.info("Публикация с идентификатором {} уже существует в БД", post.getId());
+            log.warn("Публикация с идентификатором {} уже существует в БД", post.getId());
+            throw new PostExistsException(post.getId());
         } else {
             postRepository.save(modelMapper.map(post, Post.class));
         }

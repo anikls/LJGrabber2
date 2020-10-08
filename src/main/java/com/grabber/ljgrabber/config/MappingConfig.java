@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class MappingConfig {
 
-    //private final LJPost2PostMapper ljPost2PostMapper;
-
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
