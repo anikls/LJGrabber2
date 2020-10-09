@@ -2,7 +2,6 @@ package com.grabber.ljgrabber.entity.lj;
 
 
 import lombok.*;
-import org.jsoup.Jsoup;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -42,12 +41,4 @@ public class LJPost {
 	private String replyCount;
 	@XmlElement(name="author")
 	private String author;
-
-	public String getEventText() {
-		return Jsoup.parse(event).text();
-	}
-
-	public String getText() {
-		return Jsoup.parse(event).text();
-	}
 }

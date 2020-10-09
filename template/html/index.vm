@@ -90,7 +90,7 @@
 			#set($c = $c - 1)
 			#set($post = $postList.get($c))
     		<div class="post-preview">
-                <a href="/post/${currYear}/${post.itemid}.html">
+                <a href="/post/${currYear}/${post.itemId}.html">
                     <h2 class="post-title">$!post.subject</h2>
 					#set ($stringLength = $post.text.length())
 					#if ($stringLength>300)
@@ -102,7 +102,7 @@
                 </a>
                 <p class="post-meta">Опубликовано в
                     <a href="${post.url}">Live Journal</a>
-					${post.eventtime}</p>
+					${post.eventTime}</p>
             </div>
             <hr>
 			#end

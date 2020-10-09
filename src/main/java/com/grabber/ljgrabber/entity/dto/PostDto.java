@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jsoup.Jsoup;
 
 import java.time.LocalDateTime;
 
@@ -26,4 +27,12 @@ public class PostDto {
 	private String body;
 
 	private String author;
+
+    public String getEventText() {
+        return Jsoup.parse(body).text();
+    }
+
+    public String getText() {
+        return Jsoup.parse(body).text();
+    }
 }

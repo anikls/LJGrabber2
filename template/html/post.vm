@@ -76,7 +76,7 @@
 ##                    <h2 class="subheading"></h2>
                     <span class="meta">Опубликовано в
 						<a href="${post.url}">Live Journal</a>
-						${post.eventtime}
+						${post.eventTime}
              		 </span>
                 </div>
             </div>
@@ -89,7 +89,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
-				$post.event
+				$post.body
             </div>
         </div>
     </div>
