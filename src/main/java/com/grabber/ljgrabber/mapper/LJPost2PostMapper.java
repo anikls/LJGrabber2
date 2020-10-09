@@ -17,11 +17,11 @@ public class LJPost2PostMapper extends PropertyMap<LJPost, PostDto> {
 
     @Override
     protected void configure() {
-        map(source.getItemid(), destination.getId());
+        map(source.getItemId(), destination.getItemId());
         map(source.getSubject(), destination.getSubject());
         map(source.getEvent(), destination.getBody());
         map(source.getAuthor(), destination.getAuthor());
-        using(eventTimeConverter).map(source.getEventtime(), destination.getEventTime());
+        using(eventTimeConverter).map(source.getEventTime(), destination.getEventTime());
     }
 
     private Converter<String, LocalDateTime> eventTimeConverter =

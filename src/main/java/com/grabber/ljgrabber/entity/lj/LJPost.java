@@ -17,11 +17,11 @@ import javax.xml.bind.annotation.XmlElement;
 public class LJPost {
 	
 	@XmlElement(name="itemid")
-	private long itemid;
+	private long itemId;
 	@XmlElement(name="anum")
 	private String anum;
 	@XmlElement(name="eventtime")
-	private String eventtime;
+	private String eventTime;
 	@XmlElement(name="subject")
 	private String subject;	
 	@XmlElement(name="url")

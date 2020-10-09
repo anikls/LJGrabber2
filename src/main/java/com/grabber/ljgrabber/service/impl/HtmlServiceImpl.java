@@ -54,7 +54,7 @@ public class HtmlServiceImpl implements HtmlService {
 
             LinkPost predYear = null;
             if (currentYear > startYear) {
-                predYear = new LinkPost((currentYear - 1)+".html", String.valueOf(currentYear - 1));
+                predYear = new LinkPost((currentYear - 1) + ".html", String.valueOf(currentYear - 1));
             }
             LinkPost nextYear = null;
             if (currentYear < endYear) {
@@ -67,14 +67,14 @@ public class HtmlServiceImpl implements HtmlService {
 
             List<PostDto> allPosts = postService.findAllByYear(author, sCurrentYear);
             htmlBuilder.generateOneHtml("template/html/index.vm",
-                    applicationProperties.getOutPath() + "html\\"+currentYear + ".html",
+                    applicationProperties.getOutPath() + "html\\" + currentYear + ".html",
                     predYear,
                     sCurrentYear,
                     nextYear,
                     allPosts);
             for (PostDto post: allPosts)
                 htmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"
-                        + sCurrentYear + "\\" + post.getId()+".html", post);
+                        + sCurrentYear + "\\" + post.getItemId()+".html", post);
 
         }
 
@@ -100,7 +100,7 @@ public class HtmlServiceImpl implements HtmlService {
             htmlBuilder.generateHtml(applicationProperties.getOutPath()
                     + "html\\post\\"
                     + currentYear + "\\"
-                    + post.getId()+".html", post);
+                    + post.getItemId()+".html", post);
         }
 
     }

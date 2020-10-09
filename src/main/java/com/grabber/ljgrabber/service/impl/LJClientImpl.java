@@ -97,7 +97,7 @@ public class LJClientImpl implements LJClient {
                 map.put("author", author);
                 if (!map.isEmpty() && map.containsKey("itemid")) {
                     LJPost p = generatePost(map);
-                    log.info("loaded post {}", p.getItemid());
+                    log.info("loaded post {}", p.getItemId());
                     if (p != null) listPost.add(p);
                 }
             }
@@ -111,11 +111,11 @@ public class LJClientImpl implements LJClient {
     private LJPost generatePost(Map<String, String> data) {
 		LJPost.LJPostBuilder postBuilder = LJPost.builder();
 		Optional.ofNullable(data.get("itemid"))
-				.ifPresent(item -> postBuilder.itemid(Long.parseLong(item)));
+				.ifPresent(item -> postBuilder.itemId(Long.parseLong(item)));
 		Optional.ofNullable(data.get("anum"))
 				.ifPresent(item -> postBuilder.anum(item));
 		Optional.ofNullable(data.get("eventtime"))
-				.ifPresent(item -> postBuilder.eventtime(item));
+				.ifPresent(item -> postBuilder.eventTime(item));
 		Optional.ofNullable(data.get("subject"))
 				.ifPresent(item -> postBuilder.subject(item));
 		Optional.ofNullable(data.get("url"))

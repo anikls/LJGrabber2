@@ -15,9 +15,16 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "POST")
 public class Post {
+	/**
+	 * Внутренний идентификатор записи.
+	 */
 	@Id
-	@Column(name = "id_post", nullable = false)
+	@GeneratedValue
+	@Column(name = "id", nullable = false)
 	private long id;
+
+	@Column(name = "item_id", nullable = false)
+	private long itemId;
 
 	@Column(name = "event_time", columnDefinition = "DATETIME", nullable = false)
     private LocalDateTime eventTime;

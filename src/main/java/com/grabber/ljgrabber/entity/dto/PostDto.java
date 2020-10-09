@@ -15,7 +15,9 @@ public class PostDto {
 
 	private long id;
 
-	private LocalDateTime eventTime;
+    private long itemId;
+
+    private LocalDateTime eventTime;
 
 	private String subject;
 

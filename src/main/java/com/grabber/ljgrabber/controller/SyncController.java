@@ -1,6 +1,5 @@
 package com.grabber.ljgrabber.controller;
 
-import com.grabber.ljgrabber.config.ApplicationProperties;
 import com.grabber.ljgrabber.exception.PostExistsException;
 import com.grabber.ljgrabber.service.PostService;
 import com.grabber.ljgrabber.entity.dto.PostDto;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,9 +50,9 @@ public class SyncController {
          ljPosts.forEach(post -> {
              try {
                  postService.save(modelMapper.map(post, PostDto.class));
-                 console.append("Успешно загружена публикация ").append(post.getItemid()).append("<br/>");
+                 console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");
              } catch (PostExistsException e){
-                 console.append("Публикация ").append(post.getItemid()).append(" уже загружена").append("<br/>");
+                 console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append("<br/>");
              }
          });
 
@@ -80,9 +78,9 @@ public class SyncController {
         ljPosts.forEach(post -> {
             try {
                 postService.save(modelMapper.map(post, PostDto.class));
-                console.append("Успешно загружена публикация ").append(post.getItemid()).append("<br/>");
+                console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");
             } catch (PostExistsException e){
-                console.append("Публикация ").append(post.getItemid()).append(" уже загружена").append("<br/>");
+                console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append("<br/>");
             }
         });
 

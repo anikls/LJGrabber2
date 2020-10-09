@@ -32,7 +32,7 @@ public class PostController {
      * @param author
      * @return
      */
-    @GetMapping("/{author}")
+    @GetMapping("/{author}/all")
     public List<PostDto> retrieveAllPosts(@PathVariable String author) {
         return postService.findAll(author);
     }

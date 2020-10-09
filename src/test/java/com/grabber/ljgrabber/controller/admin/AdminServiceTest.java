@@ -19,15 +19,15 @@ public class AdminServiceTest {
 //                .thenReturn(Collections.singletonList(
 //                        LJPost.builder()
 //                                .autorId(1L)
-//                                .itemid(123L).build()));
+//                                .itemId(123L).build()));
 //        LJPost ljPost = LJPost.builder()
 //                .autorId(1L)
-//                .itemid(123L).build();
+//                .itemId(123L).build();
 //
 //        Post post = modelMapper
 //                .map(ljPost, Post.class);
 //
-//        Assertions.assertEquals(post.getId(), ljPost.getItemid());
+//        Assertions.assertEquals(post.getId(), ljPost.getItemId());
 //    }
 
 }
