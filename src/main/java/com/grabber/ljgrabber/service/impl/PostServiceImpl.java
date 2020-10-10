@@ -36,8 +36,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void save(PostDto post) {
         Assert.notNull(post, "Post must not be null!");
-        if (postRepository.existsById(post.getId())) {
-            log.warn("Публикация с идентификатором {} уже существует в БД", post.getId());
+        if (postRepository.getPostByItemId(post.getItemId()).isPresent()) {
             throw new PostExistsException(post.getId());
         } else {
             postRepository.save(modelMapper.map(post, Post.class));
@@ -67,7 +66,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto getById(Long id){
-        return postRepository.readById(id)
+        return postRepository.findById(id)
                 .map(post -> modelMapper.map(post, PostDto.class))
                 .orElseThrow(PostNotFoundException::new);
     }

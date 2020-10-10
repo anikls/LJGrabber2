@@ -33,6 +33,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class LJClientImpl implements LJClient {
         ve.init();
     }
 
-    private List<LJPost> loadByReq(String reqXml, String author) {
+    private Stream<LJPost> loadByReq(String reqXml, String author) {
 
         List<LJPost> listPost = new ArrayList();
 
@@ -105,7 +106,7 @@ public class LJClientImpl implements LJClient {
             log.error(e.getMessage(), e);
         }
 
-        return listPost;
+        return listPost.stream();
     }
 
     private LJPost generatePost(Map<String, String> data) {
@@ -140,7 +141,7 @@ public class LJClientImpl implements LJClient {
     }
 
     @Override
-    public List<LJPost> loadFromLJ(String author, LocalDate date) {
+    public Stream<LJPost> loadFromLJ(String author, LocalDate date) {
 
         String fileName = "template/lj/getevents.vm";
         Template t = ve.getTemplate(fileName, StandardCharsets.UTF_8.name());
@@ -156,25 +157,22 @@ public class LJClientImpl implements LJClient {
     }
 
     @Override
-    public List<LJPost> downloadPosts(String author, int year) {
-        List<LJPost> postList = new ArrayList<>();
+    public Stream<LJPost> downloadPosts(String author, int year) {
 
         // Первый день года
         LocalDate startDate = LocalDate.of(year, 1, 1);
         // Последний день года
         LocalDate endYearDate = LocalDate.of(year, 12, 31);
 
-        DateUtils.getDatesBetween(startDate, endYearDate)
-                .forEach(checkedDate -> {
+        return DateUtils.getDatesBetween(startDate, endYearDate)
+                .flatMap(checkedDate -> {
                     log.info("Проверяемая дата {}", checkedDate.toString());
-                    postList.addAll(this.loadFromLJ(author, checkedDate));
+                    return this.loadFromLJ(author, checkedDate);
                 });
-        return postList;
     }
 
     @Override
-    public List<LJPost> downloadNewPosts(String author, LocalDate startDate) {
-        List<LJPost> postList = new ArrayList<>();
+    public Stream<LJPost> downloadNewPosts(String author, LocalDate startDate) {
 
         // Первый день года
         if (startDate == null) {
@@ -186,11 +184,10 @@ public class LJClientImpl implements LJClient {
         // Текущая дата
         LocalDate endDate = LocalDate.now();
 
-        DateUtils.getDatesBetween(startDate, endDate)
-                .forEach(checkedDate -> {
+        return DateUtils.getDatesBetween(startDate, endDate)
+                .flatMap(checkedDate -> {
                     log.info("Проверяемая дата {}", checkedDate.toString());
-                    postList.addAll(this.loadFromLJ(author, checkedDate));
+                    return this.loadFromLJ(author, checkedDate);
                 });
-        return postList;
     }
 }

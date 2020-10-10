@@ -3,7 +3,6 @@ package com.grabber.ljgrabber.controller;
 import com.grabber.ljgrabber.exception.PostExistsException;
 import com.grabber.ljgrabber.service.PostService;
 import com.grabber.ljgrabber.entity.dto.PostDto;
-import com.grabber.ljgrabber.entity.lj.LJPost;
 import com.grabber.ljgrabber.service.LJClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,12 +45,14 @@ public class SyncController {
      {
         final StringBuilder console = new StringBuilder();
 
-        List<LJPost> ljPosts = ljClient.downloadPosts(author, year);
-         ljPosts.forEach(post -> {
+        ljClient.downloadPosts(author, year)
+                .forEach(post -> {
              try {
                  postService.save(modelMapper.map(post, PostDto.class));
+                 log.info("Успешно загружена публикация {}", post.getItemId());
                  console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");
-             } catch (PostExistsException e){
+             } catch (PostExistsException e) {
+                 log.warn("Публикация {} уже загружена", post.getItemId());
                  console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append("<br/>");
              }
          });
@@ -74,8 +75,8 @@ public class SyncController {
 
         final StringBuilder console = new StringBuilder();
 
-        List<LJPost> ljPosts = ljClient.downloadNewPosts(author, startDate);
-        ljPosts.forEach(post -> {
+        ljClient.downloadNewPosts(author, startDate)
+            .forEach(post -> {
             try {
                 postService.save(modelMapper.map(post, PostDto.class));
                 console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");

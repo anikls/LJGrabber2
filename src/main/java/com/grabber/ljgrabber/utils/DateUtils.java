@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @UtilityClass
 @Slf4j
@@ -30,12 +31,11 @@ public class DateUtils {
 	 * @param endDate
 	 * @return
 	 */
-	public static List<LocalDate> getDatesBetween(
+	public static Stream<LocalDate> getDatesBetween(
 			LocalDate startDate, LocalDate endDate) {
 		long numOfDaysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
 		return IntStream.iterate(0, i -> i + 1)
 				.limit(numOfDaysBetween)
-				.mapToObj(i -> startDate.plusDays(i))
-				.collect(Collectors.toList());	}
-	
+				.mapToObj(i -> startDate.plusDays(i));
+	}
 }
