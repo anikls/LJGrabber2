@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.util.List;
 
 /**
- * Компонет для геерации html страниц по шаблону.
+ * Компонет для генерации html-страниц по шаблону.
  */
 @Slf4j
 @Component
@@ -49,11 +49,11 @@ public class HtmlBuilder {
 	}
 	
 	public void generateOneHtml(String template,
-                                       String outFileName,
-                                       LinkPost predYear,
-									   Integer currYear,
-                                       LinkPost nextYear,
-                                       List<PostDto> listPost){
+                                String outFileName,
+                                LinkPost predYear,
+								Integer currYear,
+                                LinkPost nextYear,
+                                List<PostDto> listPost) {
 						
 	    Template t = getVE().getTemplate( template,"UTF-8");
 	    VelocityContext context = new VelocityContext();
@@ -65,7 +65,7 @@ public class HtmlBuilder {
 		context.put("currYear", currYear);
 		try (FileWriter outHtml = new FileWriter(outFileName)) {
 			t.merge( context, outHtml );			
-		}catch(Exception e){
+		} catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
 	}

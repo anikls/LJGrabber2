@@ -20,6 +20,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HtmlServiceImpl implements HtmlService {
 
+    private static final String HTML = ".html";
+
     private final PostService postService;
     private final ApplicationProperties applicationProperties;
     private final HtmlBuilder htmlBuilder;
@@ -29,55 +31,53 @@ public class HtmlServiceImpl implements HtmlService {
      */
     public void generateAll(String author) {
 
-        File outDir = new File(applicationProperties.getOutPath() + "\\html\\post");
+        final File outDir = new File(applicationProperties.getOutPath(),"html\\post");
         if (!outDir.exists()) {
             outDir.mkdirs();
         }
 
-        LocalDateTime firstEventTime = postService.getFirstPost(author)
+        final LocalDateTime firstEventTime = postService.getFirstPost(author)
                 .map(PostDto::getEventTime)
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
-        Integer startYear = firstEventTime.getYear();
-        LocalDateTime lastEventTime = postService.getLastPost(author)
+        final Integer startYear = firstEventTime.getYear();
+        final LocalDateTime lastEventTime = postService.getLastPost(author)
                 .map(PostDto::getEventTime)
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
-        Integer endYear = lastEventTime.getYear();
-
+        final Integer endYear = lastEventTime.getYear();
 
         for (Integer currentYear = startYear; currentYear < endYear; currentYear++) {
-            Integer sCurrentYear = currentYear;
+            final Integer sCurrentYear = currentYear;
 
-            File outDirPost = new File(outDir.getPath(),String.valueOf(sCurrentYear));
+            File outDirPost = new File(outDir.getPath(), String.valueOf(sCurrentYear));
             if (!outDirPost.exists()) {
                 outDirPost.mkdirs();
             }
 
             LinkPost predYear = null;
             if (currentYear > startYear) {
-                predYear = new LinkPost((currentYear - 1) + ".html", String.valueOf(currentYear - 1));
+                predYear = new LinkPost((currentYear - 1) + HTML, String.valueOf(currentYear - 1));
             }
             LinkPost nextYear = null;
             if (currentYear < endYear) {
                 if (currentYear + 1 == endYear) {
                     nextYear = new LinkPost("index.html", String.valueOf(currentYear + 1));
                 } else {
-                    nextYear = new LinkPost((currentYear + 1) + ".html", String.valueOf(currentYear + 1));
+                    nextYear = new LinkPost((currentYear + 1) + HTML, String.valueOf(currentYear + 1));
                 }
             }
 
             List<PostDto> allPosts = postService.findAllByYear(author, sCurrentYear);
             htmlBuilder.generateOneHtml("template/html/index.vm",
-                    applicationProperties.getOutPath() + "html\\" + currentYear + ".html",
+                    applicationProperties.getOutPath() + "html\\" + currentYear + HTML,
                     predYear,
                     sCurrentYear,
                     nextYear,
                     allPosts);
             for (PostDto post: allPosts)
                 htmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"
-                        + sCurrentYear + "\\" + post.getItemId()+".html", post);
+                        + sCurrentYear + "\\" + post.getItemId()+HTML, post);
 
         }
-
 
         Integer currentYear = endYear;
 
@@ -89,7 +89,7 @@ public class HtmlServiceImpl implements HtmlService {
         List<PostDto> allPosts = postService.findAllByYear(author, currentYear);
         LinkPost predYear = endYear.equals(startYear)
                 ? null :
-                new LinkPost( (endYear - 1) + ".html", String.valueOf(endYear - 1));
+                new LinkPost( (endYear - 1) + HTML, String.valueOf(endYear - 1));
         htmlBuilder.generateOneHtml("template/html/index.vm",
                 applicationProperties.getOutPath() + "html\\index.html",
                 predYear,
@@ -100,7 +100,7 @@ public class HtmlServiceImpl implements HtmlService {
             htmlBuilder.generateHtml(applicationProperties.getOutPath()
                     + "html\\post\\"
                     + currentYear + "\\"
-                    + post.getItemId()+".html", post);
+                    + post.getItemId()+HTML, post);
         }
 
     }

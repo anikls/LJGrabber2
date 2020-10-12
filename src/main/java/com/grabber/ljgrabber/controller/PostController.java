@@ -29,7 +29,7 @@ public class PostController {
 
     /**
      * Получить все публикации автора.
-     * @param author
+     * @param author автор публикаций
      * @return
      */
     @GetMapping("/{author}/all")

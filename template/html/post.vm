@@ -9,7 +9,7 @@
     <meta name="author" content="">
 
     <title>$title</title>
-    post-bg.jpg
+
     <!-- Bootstrap core CSS -->
     <link href="../../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 

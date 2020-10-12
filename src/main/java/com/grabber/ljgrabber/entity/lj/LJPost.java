@@ -36,6 +36,7 @@ public class LJPost {
 	@XmlElement(name="ditemid")
 	private String ditemid;
 	@XmlElement(name="event")
+	@ToString.Exclude
 	private String event;
 	@XmlElement(name="reply_count")
 	private String replyCount;

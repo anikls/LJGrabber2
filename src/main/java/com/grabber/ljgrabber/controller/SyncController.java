@@ -12,10 +12,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
- * Контроллер для синхронизации данных.
+ * Контроллер для синхронизации данных из внешних источников.
  *
  * @author aniko
  */
@@ -25,7 +24,16 @@ import java.util.List;
 @Slf4j
 public class SyncController {
 
+    private static final String NEW_LINE = "<br/>";
+
+    /**
+     * Сервис для работы с хранилищем публикаций.
+     */
     private final PostService postService;
+
+    /**
+     * Клиент для получения данных из LJ.
+     */
     private final LJClient ljClient;
 
     /**
@@ -34,28 +42,28 @@ public class SyncController {
     private final ModelMapper modelMapper;
 
     /**
-     * Загрузка публикаций из LJ за указанный год в БД.
+     * Загрузка публикаций из LJ за указанный год в локальное хранилище.
      * @param author автор публикаций
      * @param year год загрузки публикаций
-     * @return
+     * @return лог выполнения операции
      */
     @GetMapping("/lj/{author}/{year}")
     public String downloadPosts(@PathVariable("author") String author,
-                                                @PathVariable("year") Integer year)
-     {
+                                @PathVariable("year") Integer year) {
+
         final StringBuilder console = new StringBuilder();
 
         ljClient.downloadPosts(author, year)
                 .forEach(post -> {
-             try {
-                 postService.save(modelMapper.map(post, PostDto.class));
-                 log.info("Успешно загружена публикация {}", post.getItemId());
-                 console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");
-             } catch (PostExistsException e) {
-                 log.warn("Публикация {} уже загружена", post.getItemId());
-                 console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append("<br/>");
-             }
-         });
+                    try {
+                        postService.save(modelMapper.map(post, PostDto.class));
+                        log.info("Успешно загружена публикация {}", post);
+                        console.append("Успешно загружена публикация ").append(post.getItemId()).append(NEW_LINE);
+                    } catch (PostExistsException e) {
+                        log.warn("Публикация {} уже загружена", post);
+                        console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append(NEW_LINE);
+                    }
+                });
 
         return console.toString();
     }
@@ -63,8 +71,9 @@ public class SyncController {
     /**
      * Загрузка последних публикаций из LJ,
      * отсутствующих в локальном хранилище
-     *
-     * @return
+     * @param author автор публикаций
+     * @param startDate дата начала синхронизации (если не указана, то будет использована дата последней публикации)
+     * @return лог выполнения операции
      */
     @GetMapping("/lj/{author}")
     public String loadNewPosts(
@@ -77,15 +86,16 @@ public class SyncController {
 
         ljClient.downloadNewPosts(author, startDate)
             .forEach(post -> {
-            try {
-                postService.save(modelMapper.map(post, PostDto.class));
-                console.append("Успешно загружена публикация ").append(post.getItemId()).append("<br/>");
-            } catch (PostExistsException e){
-                console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append("<br/>");
-            }
+                try {
+                    postService.save(modelMapper.map(post, PostDto.class));
+                    log.info("Успешно загружена публикация {}", post);
+                    console.append("Успешно загружена публикация ").append(post.getItemId()).append(NEW_LINE);
+                } catch (PostExistsException e) {
+                    log.warn("Публикация {} уже загружена", post);
+                    console.append("Публикация ").append(post.getItemId()).append(" уже загружена").append(NEW_LINE);
+                }
         });
 
         return console.toString();
     }
-
 }

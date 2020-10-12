@@ -24,6 +24,6 @@ public class LJPost2PostMapper extends PropertyMap<LJPost, PostDto> {
         using(eventTimeConverter).map(source.getEventTime(), destination.getEventTime());
     }
 
-    private Converter<String, LocalDateTime> eventTimeConverter =
+    private final Converter<String, LocalDateTime> eventTimeConverter =
             src -> LocalDateTime.parse(src.getSource(), FORMATTER);
 }

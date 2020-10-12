@@ -5,25 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @UtilityClass
 @Slf4j
 public class DateUtils {
-	
-	public static LocalDate nextDate(LocalDate checkedDate) {
-		checkedDate = checkedDate.plusDays(1);
-		if (checkedDate.getMonthValue() == 1) {
-			checkedDate = checkedDate.plusMonths(1);
-			if (checkedDate.getMonthValue() == 1) {
-				checkedDate = checkedDate.plusYears(1);
-			}
-		}
-		return checkedDate;
-	}
 
 	/**
 	 * Возвращает диапазон дат.

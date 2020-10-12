@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 
 @Configuration
-@ConfigurationProperties
+@ConfigurationProperties(prefix = "grabber")
 @Data
 public class ApplicationProperties {
 

@@ -23,21 +23,39 @@ public class Post {
 	@Column(name = "id", nullable = false)
 	private long id;
 
+	/**
+	 * Идентификатор в опубликованном источнике.
+	 */
 	@Column(name = "item_id", nullable = false)
 	private long itemId;
 
+	/**
+	 * Дата/время публикации.
+	 */
 	@Column(name = "event_time", columnDefinition = "DATETIME", nullable = false)
     private LocalDateTime eventTime;
 
+	/**
+	 * Заголовок публикации.
+	 */
     @Column(name = "subject")
 	private String subject;
 
+	/**
+	 * Ссылка на первоисточник.
+	 */
     @Column(name = "url", nullable = false)
 	private String url;
 
-    @Column(name = "body", nullable = false, columnDefinition="TEXT")
+	/**
+	 * Контент публикации.
+	 */
+	@Column(name = "body", nullable = false, columnDefinition="TEXT")
 	private String body;
 
-    @Column(name = "author", nullable = false)
+	/**
+	 * Имя автора.
+	 */
+	@Column(name = "author", nullable = false)
 	private String author;
 }

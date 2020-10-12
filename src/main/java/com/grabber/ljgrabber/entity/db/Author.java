@@ -1,12 +1,12 @@
 package com.grabber.ljgrabber.entity.db;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "AUTHOR")
 public class Author {

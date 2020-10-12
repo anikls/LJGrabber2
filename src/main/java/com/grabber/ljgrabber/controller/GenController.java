@@ -26,7 +26,7 @@ public class GenController {
 
     /**
      * Выгрузить все публикации автора в html
-     * @param author
+     * @param author автор публикаций
      * @return
      */
     @GetMapping("/{author}/all")

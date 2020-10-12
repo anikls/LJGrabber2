@@ -46,7 +46,6 @@ public class LJClientImpl implements LJClient {
     private final PostService postService;
     private final ApplicationProperties applicationProperties;
 
-
     private VelocityEngine ve;
 
     @PostConstruct
@@ -57,20 +56,20 @@ public class LJClientImpl implements LJClient {
 
     private Stream<LJPost> loadByReq(String reqXml, String author) {
 
-        List<LJPost> listPost = new ArrayList();
+        final List<LJPost> listPost = new ArrayList();
 
         try {
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, reqXml, String.class);
-            String response = responseEntity.getBody();
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder;
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(URL, reqXml, String.class);
+            final String response = responseEntity.getBody();
+            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder;
 
             builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(response)));
-            XPathFactory xPathfactory = XPathFactory.newInstance();
-            XPath xpath = xPathfactory.newXPath();
-            XPathExpression expr = xpath.compile("/methodResponse/params/param/value/struct/member/value/array/data/value");
-            NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+            final Document document = builder.parse(new InputSource(new StringReader(response)));
+            final XPathFactory xPathfactory = XPathFactory.newInstance();
+            final XPath xpath = xPathfactory.newXPath();
+            final XPathExpression expr = xpath.compile("/methodResponse/params/param/value/struct/member/value/array/data/value");
+            final NodeList nl = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
 
             for (int i = 0; i < nl.getLength(); i++) {
                 Node node = nl.item(i);
@@ -110,7 +109,7 @@ public class LJClientImpl implements LJClient {
     }
 
     private LJPost generatePost(Map<String, String> data) {
-		LJPost.LJPostBuilder postBuilder = LJPost.builder();
+		final LJPost.LJPostBuilder postBuilder = LJPost.builder();
 		Optional.ofNullable(data.get("itemid"))
 				.ifPresent(item -> postBuilder.itemId(Long.parseLong(item)));
 		Optional.ofNullable(data.get("anum"))
@@ -143,14 +142,14 @@ public class LJClientImpl implements LJClient {
     @Override
     public Stream<LJPost> loadFromLJ(String author, LocalDate date) {
 
-        String fileName = "template/lj/getevents.vm";
-        Template t = ve.getTemplate(fileName, StandardCharsets.UTF_8.name());
-        VelocityContext context = new VelocityContext();
+        final String fileName = "template/lj/getevents.vm";
+        final Template t = ve.getTemplate(fileName, StandardCharsets.UTF_8.name());
+        final VelocityContext context = new VelocityContext();
         context.put("journal", author);
         context.put("year", date.getYear());
         context.put("month", date.getMonthValue());
         context.put("day", date.getDayOfMonth());
-        StringWriter reqXml = new StringWriter();
+        final StringWriter reqXml = new StringWriter();
         t.merge(context, reqXml);
 
         return loadByReq(reqXml.toString(), author);
@@ -160,9 +159,9 @@ public class LJClientImpl implements LJClient {
     public Stream<LJPost> downloadPosts(String author, int year) {
 
         // Первый день года
-        LocalDate startDate = LocalDate.of(year, 1, 1);
+        final LocalDate startDate = LocalDate.of(year, 1, 1);
         // Последний день года
-        LocalDate endYearDate = LocalDate.of(year, 12, 31);
+        final LocalDate endYearDate = LocalDate.of(year, 12, 31);
 
         return DateUtils.getDatesBetween(startDate, endYearDate)
                 .flatMap(checkedDate -> {
@@ -182,7 +181,7 @@ public class LJClientImpl implements LJClient {
         }
 
         // Текущая дата
-        LocalDate endDate = LocalDate.now();
+        final LocalDate endDate = LocalDate.now();
 
         return DateUtils.getDatesBetween(startDate, endDate)
                 .flatMap(checkedDate -> {

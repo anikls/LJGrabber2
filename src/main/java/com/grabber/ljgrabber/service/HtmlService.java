@@ -1,7 +1,7 @@
 package com.grabber.ljgrabber.service;
 
 /**
- * Сервис для работы с генерацией html
+ * Сервис для работы с генерацией html.
  */
 public interface HtmlService {
     /**
