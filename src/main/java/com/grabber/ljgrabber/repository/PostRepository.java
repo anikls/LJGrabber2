@@ -32,7 +32,7 @@ public interface PostRepository extends CrudRepository<Post, Long>, JpaRepositor
      * @param id
      * @return
      */
-    Optional<Post> getPostByItemId(long id);
+    Optional<Post> getPostByAuthorAndItemId(String author, long id);
 
     /**
      * Последняя публикация автора.

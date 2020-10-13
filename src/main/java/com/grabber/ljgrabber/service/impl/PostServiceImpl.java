@@ -36,7 +36,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void save(PostDto post) {
         Assert.notNull(post, "Post must not be null!");
-        if (postRepository.getPostByItemId(post.getItemId()).isPresent()) {
+        if (postRepository.getPostByAuthorAndItemId(post.getAuthor(), post.getItemId()).isPresent()) {
             throw new PostExistsException(post.getId());
         } else {
             postRepository.save(modelMapper.map(post, Post.class));
@@ -65,8 +65,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto getById(Long id){
+    public PostDto getById(Long id) {
         return postRepository.findById(id)
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .orElseThrow(PostNotFoundException::new);
+    }
+
+    @Override
+    public PostDto getByItemId(String author, Long id) {
+        return postRepository.getPostByAuthorAndItemId(author, id)
                 .map(post -> modelMapper.map(post, PostDto.class))
                 .orElseThrow(PostNotFoundException::new);
     }

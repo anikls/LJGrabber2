@@ -28,11 +28,12 @@ public class PostDto {
 
 	private String author;
 
-    public String getEventText() {
+    public String getFormatText() {
         return Jsoup.parse(body).text();
     }
 
     public String getText() {
-        return Jsoup.parse(body).text();
+        final String text = Jsoup.parse(body).text();
+        return text.replaceAll("\r\n", "<br/>");
     }
 }

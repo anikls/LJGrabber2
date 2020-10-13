@@ -1,6 +1,7 @@
 package com.grabber.ljgrabber.service.impl;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
+import com.grabber.ljgrabber.entity.db.Post;
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.entity.html.LinkPost;
 import com.grabber.ljgrabber.service.HtmlService;
@@ -29,7 +30,7 @@ public class HtmlServiceImpl implements HtmlService {
     /**
      * Сгенерировать html-представление публикация для всех постов
      */
-    public void generateAll(String author) {
+    public String generateAll(String author) {
 
         final File outDir = new File(applicationProperties.getOutPath(),"html\\post");
         if (!outDir.exists()) {
@@ -74,8 +75,7 @@ public class HtmlServiceImpl implements HtmlService {
                     nextYear,
                     allPosts);
             for (PostDto post: allPosts)
-                htmlBuilder.generateHtml(applicationProperties.getOutPath()+"html\\post\\"
-                        + sCurrentYear + "\\" + post.getItemId()+HTML, post);
+                htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
 
         }
 
@@ -97,11 +97,30 @@ public class HtmlServiceImpl implements HtmlService {
                 null,
                 allPosts);
         for (PostDto post: allPosts){
-            htmlBuilder.generateHtml(applicationProperties.getOutPath()
-                    + "html\\post\\"
-                    + currentYear + "\\"
-                    + post.getItemId()+HTML, post);
+            htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
         }
 
+        return "OK";
+    }
+
+    /**
+     * Выгрузить конкретную публикации автора в html
+     */
+    public String generateHtmlPost(String author, long itemId) {
+
+        final File outDir = new File(applicationProperties.getOutPath(),"html\\post");
+        if (!outDir.exists()) {
+            outDir.mkdirs();
+        }
+
+        PostDto post = postService.getByItemId(author, itemId);
+        Integer currentYear = post.getEventTime().getYear();
+
+        File outDirPost = new File(outDir.getPath(), String.valueOf(currentYear));
+        if (!outDirPost.exists()) {
+            outDirPost.mkdirs();
+        }
+
+        return htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
     }
 }

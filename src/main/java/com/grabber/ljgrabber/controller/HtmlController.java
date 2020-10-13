@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/html")
 @RequiredArgsConstructor
 @Slf4j
-public class GenController {
+public class HtmlController {
 
     /**
      * Сервис для работы с html
@@ -30,8 +30,19 @@ public class GenController {
      * @return
      */
     @GetMapping("/{author}/all")
-    public void generateHtml(@PathVariable("author") String author) {
-        htmlService.generateAll(author);
+    public String generateHtml(@PathVariable("author") String author) {
+        return htmlService.generateAll(author);
     }
 
+    /**
+     * Выгрузить конкретную публикации автора в html
+     * @param author автор публикаций
+     * @param itemId идентификатор публикации
+     * @return
+     */
+    @GetMapping("/{author}/{itemId}")
+    public String generateHtml(@PathVariable("author") String author,
+                               @PathVariable("itemId") long itemId) {
+        return htmlService.generateHtmlPost(author, itemId);
+    }
 }

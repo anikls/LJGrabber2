@@ -35,6 +35,14 @@ public interface PostService {
     PostDto getById(Long id);
 
     /**
+     * Получить публикацию автора по идентификатору публикации.
+     * @param author автор публикации
+     * @param id идентификатор публикации
+     * @return
+     */
+    PostDto getByItemId(String author, Long id);
+
+    /**
      * Получить последнюю по дате публикацию автора.
      * @return
      */

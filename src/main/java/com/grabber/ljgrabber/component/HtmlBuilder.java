@@ -2,18 +2,23 @@ package com.grabber.ljgrabber.component;
 
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.entity.html.LinkPost;
+import com.grabber.ljgrabber.utils.Conversion;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.tools.generic.DateTool;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
- * Компонет для генерации html-страниц по шаблону.
+ * Компонент для генерации html-страниц по шаблону.
  */
 @Slf4j
 @Component
@@ -28,8 +33,9 @@ public class HtmlBuilder {
 		} 
 		return ve;
 	}
-	
-	public void generateHtml(String outFileName, PostDto post){
+
+	@SneakyThrows
+	public String generateHtml(File outFileName, PostDto post) {
 		
 		String fileName = "template/html/post.vm";
 	    Template t = getVE().getTemplate( fileName,"UTF-8");
@@ -38,14 +44,16 @@ public class HtmlBuilder {
 				StringUtils.isBlank(post.getSubject()) ? post.getEventTime() : post.getSubject());
 	    context.put("header",
 				StringUtils.isBlank(post.getSubject()) ? post.getEventTime() : post.getSubject());
+	    context.put("post", post);
+		context.put("date", new DateTool());
 
-	    context.put("post", post);	          
-
-		try (FileWriter outHtml = new FileWriter(outFileName)){
-			t.merge( context, outHtml );			
-		} catch(Exception e){
+		try (FileWriter outHtml = new FileWriter(outFileName)) {
+			t.merge(context, outHtml);
+		} catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
+
+		return new String((Files.readAllBytes(outFileName.toPath())));
 	}
 	
 	public void generateOneHtml(String template,
