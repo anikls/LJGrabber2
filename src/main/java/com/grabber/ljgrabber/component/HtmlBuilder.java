@@ -2,7 +2,6 @@ package com.grabber.ljgrabber.component;
 
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.entity.html.LinkPost;
-import com.grabber.ljgrabber.utils.Conversion;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +22,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class HtmlBuilder {
+
+	private static final String INDEX_TEMPLATE = "template/html/index.vm";
+	private static final String POST_TEMPLATE = "template/html/post.vm";
 	
 	private static VelocityEngine ve;
 	
@@ -35,10 +37,9 @@ public class HtmlBuilder {
 	}
 
 	@SneakyThrows
-	public String generateHtml(File outFileName, PostDto post) {
-		
-		String fileName = "template/html/post.vm";
-	    Template t = getVE().getTemplate( fileName,"UTF-8");
+	public String generatePostHtml(File outFileName, PostDto post) {
+
+	    Template t = getVE().getTemplate(POST_TEMPLATE ,"UTF-8");
 	    VelocityContext context = new VelocityContext();
 	    context.put("title",
 				StringUtils.isBlank(post.getSubject()) ? post.getEventTime() : post.getSubject());
@@ -56,17 +57,16 @@ public class HtmlBuilder {
 		return new String((Files.readAllBytes(outFileName.toPath())));
 	}
 	
-	public void generateOneHtml(String template,
-                                String outFileName,
-                                LinkPost predYear,
-								Integer currYear,
-                                LinkPost nextYear,
-                                List<PostDto> listPost) {
-						
-	    Template t = getVE().getTemplate( template,"UTF-8");
+	public void generateIndexHtml(File outFileName,
+								  String title,
+								  LinkPost predYear,
+								  Integer currYear,
+								  LinkPost nextYear,
+								  List<PostDto> listPost) {
+	    Template t = getVE().getTemplate(INDEX_TEMPLATE,"UTF-8");
 	    VelocityContext context = new VelocityContext();
-	    context.put("title", "Все предсказания Немо");
-	    context.put("header", "Все предсказания Немо");
+	    context.put("title", title);
+	    context.put("header", title);
 	    context.put("postList", listPost);
 		context.put("predYear", predYear);
         context.put("nextYear", nextYear);

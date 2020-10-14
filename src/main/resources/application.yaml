@@ -1,5 +1,5 @@
 grabber:
-  outPath: 'C:/temp/prediction2018/out2/'
+  outPath: 'C:/temp/out/'
   startDate: 2012-01-01
   translateKey: trnsl.1.1.20180525T104309Z.8709eb98683e6c22.df155899847a63d00c104ddec9aa5c6a15a10603
 spring:

@@ -3,10 +3,7 @@ package com.grabber.ljgrabber.controller;
 import com.grabber.ljgrabber.service.HtmlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Контроллер для генерации html.
@@ -30,8 +27,9 @@ public class HtmlController {
      * @return
      */
     @GetMapping("/{author}/all")
-    public String generateHtml(@PathVariable("author") String author) {
-        return htmlService.generateAll(author);
+    public String generateHtml(@PathVariable("author") String author,
+                               @RequestParam("title") String title) {
+        return htmlService.generateAll(author, title);
     }
 
     /**

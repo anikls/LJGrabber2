@@ -7,7 +7,7 @@ public interface HtmlService {
     /**
      * Сгенерировать html-представление публикация для всех постов
      */
-    String generateAll(String author);
+    String generateAll(String author, String title);
 
     /**
      * Выгрузить конкретную публикации автора в html

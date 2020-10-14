@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 public class LJClientImpl implements LJClient {
 
     private static final String URL = "http://www.livejournal.com/interface/xmlrpc";
+    private static final String GETEVENTS_VM = "template/lj/getevents.vm";
     private static final RestTemplate restTemplate = new RestTemplate();
 
     private final PostService postService;
@@ -98,7 +99,9 @@ public class LJClientImpl implements LJClient {
                 if (!map.isEmpty() && map.containsKey("itemid")) {
                     LJPost p = generatePost(map);
                     log.info("loaded post {}", p.getItemId());
-                    if (p != null) listPost.add(p);
+                    if (p != null) {
+                        listPost.add(p);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -142,8 +145,7 @@ public class LJClientImpl implements LJClient {
     @Override
     public Stream<LJPost> loadFromLJ(String author, LocalDate date) {
 
-        final String fileName = "template/lj/getevents.vm";
-        final Template t = ve.getTemplate(fileName, StandardCharsets.UTF_8.name());
+        final Template t = ve.getTemplate(GETEVENTS_VM, StandardCharsets.UTF_8.name());
         final VelocityContext context = new VelocityContext();
         context.put("journal", author);
         context.put("year", date.getYear());

@@ -1,7 +1,6 @@
 package com.grabber.ljgrabber.service.impl;
 
 import com.grabber.ljgrabber.config.ApplicationProperties;
-import com.grabber.ljgrabber.entity.db.Post;
 import com.grabber.ljgrabber.entity.dto.PostDto;
 import com.grabber.ljgrabber.entity.html.LinkPost;
 import com.grabber.ljgrabber.service.HtmlService;
@@ -22,6 +21,7 @@ import java.util.List;
 public class HtmlServiceImpl implements HtmlService {
 
     private static final String HTML = ".html";
+    private static final String INDEX_HTML = "index.html";
 
     private final PostService postService;
     private final ApplicationProperties applicationProperties;
@@ -30,13 +30,21 @@ public class HtmlServiceImpl implements HtmlService {
     /**
      * Сгенерировать html-представление публикация для всех постов
      */
-    public String generateAll(String author) {
+    public String generateAll(String author, String title) {
 
-        final File outDir = new File(applicationProperties.getOutPath(),"html\\post");
-        if (!outDir.exists()) {
-            outDir.mkdirs();
+        // Общая папка для генерации страниц
+        final File outDirHtml = new File(applicationProperties.getOutPath(),author);
+        if (!outDirHtml.exists()) {
+            outDirHtml.mkdirs();
         }
 
+        // Папка для размещения публикаций
+        final File outDirPost = new File(outDirHtml,"post");
+        if (!outDirPost.exists()) {
+            outDirPost.mkdirs();
+        }
+
+        // Диапазон дат для генерации
         final LocalDateTime firstEventTime = postService.getFirstPost(author)
                 .map(PostDto::getEventTime)
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
@@ -46,12 +54,13 @@ public class HtmlServiceImpl implements HtmlService {
                 .orElse(applicationProperties.getStartDate().atTime(0,0));
         final Integer endYear = lastEventTime.getYear();
 
+        // Генерация страниц по каждому году
         for (Integer currentYear = startYear; currentYear < endYear; currentYear++) {
             final Integer sCurrentYear = currentYear;
 
-            File outDirPost = new File(outDir.getPath(), String.valueOf(sCurrentYear));
-            if (!outDirPost.exists()) {
-                outDirPost.mkdirs();
+            File outDirPostYear = new File(outDirPost, String.valueOf(sCurrentYear));
+            if (!outDirPostYear.exists()) {
+                outDirPostYear.mkdirs();
             }
 
             LinkPost predYear = null;
@@ -61,43 +70,44 @@ public class HtmlServiceImpl implements HtmlService {
             LinkPost nextYear = null;
             if (currentYear < endYear) {
                 if (currentYear + 1 == endYear) {
-                    nextYear = new LinkPost("index.html", String.valueOf(currentYear + 1));
+                    nextYear = new LinkPost(INDEX_HTML, String.valueOf(currentYear + 1));
                 } else {
                     nextYear = new LinkPost((currentYear + 1) + HTML, String.valueOf(currentYear + 1));
                 }
             }
 
             List<PostDto> allPosts = postService.findAllByYear(author, sCurrentYear);
-            htmlBuilder.generateOneHtml("template/html/index.vm",
-                    applicationProperties.getOutPath() + "html\\" + currentYear + HTML,
+            htmlBuilder.generateIndexHtml(new File(outDirHtml, currentYear + HTML),
+                    title,
                     predYear,
                     sCurrentYear,
                     nextYear,
                     allPosts);
-            for (PostDto post: allPosts)
-                htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
+            for (PostDto post: allPosts) {
+                htmlBuilder.generatePostHtml(new File(outDirPostYear, post.getItemId() + HTML), post);
+            }
 
         }
-
+        // Генерация страниц по текущему году
         Integer currentYear = endYear;
 
-        File outDirPost = new File(outDir.getPath(), String.valueOf(currentYear));
-        if (!outDirPost.exists()) {
-            outDirPost.mkdirs();
+        File outDirPostYear = new File(outDirPost, String.valueOf(currentYear));
+        if (!outDirPostYear.exists()) {
+            outDirPostYear.mkdirs();
         }
 
         List<PostDto> allPosts = postService.findAllByYear(author, currentYear);
         LinkPost predYear = endYear.equals(startYear)
                 ? null :
                 new LinkPost( (endYear - 1) + HTML, String.valueOf(endYear - 1));
-        htmlBuilder.generateOneHtml("template/html/index.vm",
-                applicationProperties.getOutPath() + "html\\index.html",
+        htmlBuilder.generateIndexHtml(new File(outDirHtml, INDEX_HTML),
+                title,
                 predYear,
                 currentYear,
                 null,
                 allPosts);
-        for (PostDto post: allPosts){
-            htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
+        for (PostDto post: allPosts) {
+            htmlBuilder.generatePostHtml(new File(outDirPostYear, post.getItemId() + HTML), post);
         }
 
         return "OK";
@@ -108,7 +118,7 @@ public class HtmlServiceImpl implements HtmlService {
      */
     public String generateHtmlPost(String author, long itemId) {
 
-        final File outDir = new File(applicationProperties.getOutPath(),"html\\post");
+        final File outDir = new File(applicationProperties.getOutPath(),author + "\\post");
         if (!outDir.exists()) {
             outDir.mkdirs();
         }
@@ -121,6 +131,6 @@ public class HtmlServiceImpl implements HtmlService {
             outDirPost.mkdirs();
         }
 
-        return htmlBuilder.generateHtml(new File(outDirPost, post.getItemId() + HTML), post);
+        return htmlBuilder.generatePostHtml(new File(outDirPost, post.getItemId() + HTML), post);
     }
 }

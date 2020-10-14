@@ -1,5 +1,6 @@
 package com.grabber.ljgrabber.entity.dto;
 
+import com.grabber.ljgrabber.utils.Conversion;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +34,11 @@ public class PostDto {
     }
 
     public String getText() {
-        final String text = Jsoup.parse(body).text();
-        return text.replaceAll("\r\n", "<br/>");
+        // Сохраняет исходное форматирование
+        String text = body.replaceAll("\r\n", "<br/>");
+        //final String text2 = Jsoup.parse(text).text();
+        //Jsoup.
+        return Conversion.transformURLIntoLinks(text);
+        //return text;
     }
 }
