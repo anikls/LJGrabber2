@@ -1,6 +1,20 @@
-author: nemoold
-outPath: 'C:/temp/prediction2018/out/'
-startDate: 2020-01-01 00:00:00
-translate:
-  yandex:
-    key: trnsl.1.1.20180525T104309Z.8709eb98683e6c22.df155899847a63d00c104ddec9aa5c6a15a10603
+grabber:
+  outPath: 'C:/temp/out/'
+  startDate: 2012-01-01
+  translateKey: trnsl.1.1.20180525T104309Z.8709eb98683e6c22.df155899847a63d00c104ddec9aa5c6a15a10603
+spring:
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:file:C:/temp/testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true

@@ -1,7 +1,7 @@
-package com.grabber.ljgrabber.entity;
+package com.grabber.ljgrabber.entity.lj;
+
 
 import lombok.*;
-import org.jsoup.Jsoup;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,40 +13,33 @@ import javax.xml.bind.annotation.XmlElement;
 @AllArgsConstructor
 @Builder
 @ToString
-public class Post {
+public class LJPost {
 	
 	@XmlElement(name="itemid")
-	private long itemid;
+	private long itemId;
 	@XmlElement(name="anum")
 	private String anum;
 	@XmlElement(name="eventtime")
-	private String eventtime;
+	private String eventTime;
 	@XmlElement(name="subject")
 	private String subject;	
 	@XmlElement(name="url")
 	private String url;
 	@XmlElement(name="can_comment")
-	private String can_comment;
+	private String canComment;
 	@XmlElement(name="logtime")
 	private String logtime;
 	@XmlElement(name="event_timestamp")
-	private String event_timestamp;
+	private String eventTimestamp;
 	@XmlElement(name="lastsync")
 	private String lastsync;
 	@XmlElement(name="ditemid")
 	private String ditemid;
 	@XmlElement(name="event")
+	@ToString.Exclude
 	private String event;
 	@XmlElement(name="reply_count")
-	private String reply_count;
-	@XmlElement(name="autor")
-	private Author autor;
-
-	public String getEventText() {
-		return Jsoup.parse(event).text();
-	}
-
-	public String getText() {
-		return Jsoup.parse(event).text();
-	}
+	private String replyCount;
+	@XmlElement(name="author")
+	private String author;
 }
